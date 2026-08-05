@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { whenScrolled } from '../lib/deferLoad'
 
 export const PANELS = [
   { id: 'pl', href: '#obj-1', title: 'Детские площадки', note: 'CASPUR 4000' },
@@ -16,6 +17,17 @@ const BOXES = [
   { x: 0.46047, y: 0, w: 0.36164, h: 1 },
   { x: 0.71303, y: 0, w: 0.28697, h: 1 },
 ]
+/* Вписанный в параллелограмм прямоугольник каждой панели (доли ширины файла).
+   Замерено по альфе: это готовый вертикальный кадр без прозрачных углов.
+   Нужен для мобильной сетки — там панель кладётся в ячейку целиком. */
+const CORES = [
+  { x0: 0.000, x1: 0.616 },
+  { x0: 0.290, x1: 0.721 },
+  { x0: 0.302, x1: 0.702 },
+  { x0: 0.375, x1: 1.000 },
+]
+const PORTRAIT_MAX = 760
+
 const clamp = (v: number, a = 0, b = 1) => (v < a ? a : v > b ? b : v)
 const smooth = (e0: number, e1: number, x: number) => {
   const t = clamp((x - e0) / (e1 - e0))
@@ -35,11 +47,16 @@ export default function HeroPanels() {
   // панели рисуем в один слой на canvas: четыре полноэкранных DOM-слоя
   // с прозрачностью роняли кадр до 24 мс, canvas держит 16.7
   useEffect(() => {
-    imgs.current = PANELS.map((_, i) => {
+    imgs.current = PANELS.map(() => {
       const img = new Image()
       img.decoding = 'async'
-      img.src = `${import.meta.env.BASE_URL}img/panels/c${i + 1}.webp`
       return img
+    })
+    // src ставим не сразу: сперва пусть догрузится ролик героя
+    return whenScrolled(() => {
+      imgs.current.forEach((img, i) => {
+        img.src = `${import.meta.env.BASE_URL}img/panels/c${i + 1}.webp`
+      })
     })
   }, [])
 
@@ -72,7 +89,66 @@ export default function HeroPanels() {
 
     ro.observe(canvas)
 
+    /* Мобильная раскладка. Четыре диагональные полосы в портрете обрезаются
+       кадром так, что видно только две, — поэтому на узком экране кладём
+       панели сеткой 2×2. Диагональ сохраняем своим клипом, а картинку берём
+       по вписанному прямоугольнику (CORES), иначе в ячейку попали бы
+       прозрачные углы параллелограмма. */
+    const drawGrid = (q: number) => {
+      ctx.clearRect(0, 0, W, H)
+      const out = smooth(0.88, 1, q)
+      const hot = hotRef.current
+      /* Сетка занимает верхние 56% экрана, текст живёт под ней. Наложение
+         текста поверх плиток топило нижний ряд в скриме — и четыре объекта
+         снова читались как два. */
+      const gap = 7, skew = 13
+      const gridH = H * 0.56
+      const cw = (W - gap) / 2, ch = (gridH - gap) / 2
+
+      /* Тёмная основа под сеткой: иначе в зазоры между плитками просвечивает
+         последний кадр ролика и вертикальный шов горит белой полосой.
+         Alpha по фазе — чтобы не хлопнуть чёрным на стыке секций. */
+      ctx.save()
+      ctx.globalAlpha = smooth(0, 0.14, q)
+      ctx.fillStyle = '#070f16'
+      ctx.fillRect(0, 0, W, gridH + gap)
+      ctx.restore()
+
+      for (let i = 0; i < PANELS.length; i++) {
+        const img = imgs.current[i]
+        if (!img?.complete || !img.naturalWidth) continue
+        const enter = smooth(0.03 + i * 0.055, 0.28 + i * 0.055, q)
+        if (enter <= 0.001) continue
+
+        const col = i % 2, row = (i / 2) | 0
+        const dir = col === 0 ? -1 : 1
+        const x = col * (cw + gap) + dir * ((1 - enter) * W * 0.75 + out * 30)
+        const y = row * (ch + gap)
+
+        ctx.save()
+        ctx.globalAlpha = enter
+        ctx.beginPath()
+        ctx.moveTo(x + skew, y)
+        ctx.lineTo(x + cw, y)
+        ctx.lineTo(x + cw - skew, y + ch)
+        ctx.lineTo(x, y + ch)
+        ctx.closePath()
+        ctx.clip()
+        if (hot !== null) ctx.filter = hot === i ? 'brightness(1.12) saturate(1.12)' : 'brightness(0.42) saturate(0.7)'
+
+        const c = CORES[i]
+        const sx = c.x0 * img.naturalWidth
+        const sw = (c.x1 - c.x0) * img.naturalWidth
+        const sh = img.naturalHeight
+        const s = Math.max(cw / sw, ch / sh) * (1 + out * 0.1)
+        const dw = sw * s, dh = sh * s
+        ctx.drawImage(img, sx, 0, sw, sh, x + (cw - dw) / 2, y + (ch - dh) / 2, dw, dh)
+        ctx.restore()
+      }
+    }
+
     const draw = (q: number) => {
+      if (W <= PORTRAIT_MAX || H > W) return drawGrid(q)
       ctx.clearRect(0, 0, W, H)
       const out = smooth(0.88, 1, q)
       const fade = 1 // не гасим: чёрная пауза между секциями была лишней

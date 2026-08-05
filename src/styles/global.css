@@ -2,7 +2,7 @@
 :root {
   /* нейтрали как на caspol.ru */
   --ink: #222222;
-  --ink-2: #767b8b;
+  --ink-2: #6a6f7e; /* было #767b8b — контраст 4.22, ниже нормы 4.5; стало 5.01 */
   --ink-3: #999fb3;
   --bg: #ffffff;
   --bg-soft: #f5f7fa;
@@ -80,6 +80,16 @@ h1, h2, h3, h4 { font-family: var(--f-display); font-weight: 800; line-height: 1
   transition: transform .18s ease, box-shadow .22s ease, background .18s ease, border-color .18s;
 }
 .btn:active { transform: translateY(1px); }
+
+/* Видимый фокус с клавиатуры. :focus-visible, а не :focus — мышью кольцо
+   не появляется, только при табе. Двойное кольцо, чтобы читалось и на
+   светлых секциях, и на фото. */
+:where(a, button, input, textarea, select, [tabindex]):focus-visible {
+  outline: 3px solid var(--brand-sky);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+.btn:focus-visible { outline-offset: 3px; }
 .btn--ghost { background: rgba(255,255,255,.14); color: #fff; border: 1px solid rgba(255,255,255,.36); }
 .btn--ghost:hover { background: rgba(255,255,255,.18); border-color: rgba(255,255,255,.6); }
 .btn--outline { border: 1.5px solid var(--line-2); color: var(--ink); }
@@ -92,14 +102,17 @@ h1, h2, h3, h4 { font-family: var(--f-display); font-weight: 800; line-height: 1
 /* Плоский фирменный цвет без глянца и цветного свечения.
    Голубое сияние + белый блик сверху читались как «нейронка нарисовала»;
    на плоском тёмном фоне стеклу всё равно нечего преломлять. */
+/* Фон кнопки — --brand-2, а не --brand: белый на #0492c4 даёт контраст 3.55
+   (норма 4.5), на #0378a3 — 4.98. Сам --brand остаётся цветом бренда
+   для акцентов и крупного текста. */
 .btn--primary {
   color: #fff;
-  background: var(--brand);
+  background: var(--brand-2);
   border: 1px solid rgba(255,255,255,.1);
   box-shadow: 0 1px 2px rgba(2,28,40,.3), 0 10px 22px -14px rgba(2,28,40,.5);
 }
 .btn--primary:hover {
-  background: var(--brand-2);
+  background: var(--brand-deep);
   transform: translateY(-1px);
   box-shadow: 0 1px 2px rgba(2,28,40,.34), 0 14px 28px -16px rgba(2,28,40,.55);
 }
@@ -224,11 +237,13 @@ h1, h2, h3, h4 { font-family: var(--f-display); font-weight: 800; line-height: 1
     linear-gradient(0deg, rgba(6,14,20,.94) 2%, rgba(6,14,20,.7) 34%, rgba(6,14,20,.3) 64%, rgba(6,14,20,.44) 100%); }
 /* На узком экране плитки применения уходят в два ряда и поднимают заголовок
    туда, где десктопный скрим уже прозрачный — тянем плотную часть выше. */
+/* Плитки сетки занимают верх экрана, текст — низ. Поэтому затемняем только
+   нижнюю половину: раньше плотный скрим шёл до самого верха и топил плитки. */
 @media (max-width: 760px) {
   .hero__scrim { background:
-    linear-gradient(rgba(6,14,20,.16), rgba(6,14,20,.16)),
-    radial-gradient(150% 78% at 50% 94%, rgba(6,14,20,.8) 0%, rgba(6,14,20,0) 74%),
-    linear-gradient(0deg, rgba(6,14,20,.95) 2%, rgba(6,14,20,.87) 44%, rgba(6,14,20,.6) 72%, rgba(6,14,20,.5) 100%); }
+    linear-gradient(0deg,
+      rgba(6,14,20,.96) 0%, rgba(6,14,20,.94) 34%, rgba(6,14,20,.86) 44%,
+      rgba(6,14,20,.35) 54%, rgba(6,14,20,.12) 62%, rgba(6,14,20,.12) 100%); }
 }
 .hero__content { position: absolute; inset: auto 0 0 0; padding: 0 var(--gutter) clamp(46px, 7vh, 84px);
   will-change: opacity, transform; }
@@ -296,7 +311,7 @@ h1, h2, h3, h4 { font-family: var(--f-display); font-weight: 800; line-height: 1
 /* Узкий (360px) или низкий (667–740px) телефон: сцена впритык не помещалась
    под шапку. Порог специально ниже 390/844, чтобы на обычном айфоне
    типографика осталась крупной. */
-@media (max-width: 370px), (max-height: 780px) {
+@media (max-width: 760px), (max-height: 780px) {
   .cscene h2 { font-size: 27px; margin: 10px 0 12px; }
   .cscene__prod { font-size: 13.5px; padding: 7px 14px; margin-bottom: 15px; }
   .cscene p { font-size: 15px; }
@@ -329,9 +344,12 @@ h1, h2, h3, h4 { font-family: var(--f-display); font-weight: 800; line-height: 1
 @media (max-width: 760px) {
   .cdots { display: none; }
   .cscene__inner, .cscene--right .cscene__inner { justify-content: flex-start; }
+  /* Фото занимает верхние 46%, текст — низ. Затемняем только стык полосы,
+     чтобы сама фотография осталась чистой, а не под серой плёнкой. */
   .cscene__scrim, .cscene__scrim--right {
-    background: linear-gradient(0deg, rgba(6,13,19,.94) 8%, rgba(6,13,19,.55) 48%, rgba(6,13,19,.15) 100%); }
-  .cscene__wrap { align-items: flex-end; padding-bottom: 10vh; }
+    background: linear-gradient(0deg,
+      rgba(7,15,22,1) 0%, rgba(7,15,22,1) 64%, rgba(7,15,22,.5) 68%, rgba(7,15,22,0) 72%); }
+  .cscene__wrap { align-items: flex-end; padding-bottom: 3vh; }
 }
 
 /* ---------- калькулятор ---------- */

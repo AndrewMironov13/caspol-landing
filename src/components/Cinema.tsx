@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { whenScrolled } from '../lib/deferLoad'
 
 export type Scene = {
   id: string; num: string; side: 'left' | 'right'; title: string; product: string;
@@ -60,11 +61,16 @@ export default function Cinema() {
   const activeRef = useRef(0)
 
   useEffect(() => {
-    imgs.current = SCENES.map((s) => {
+    imgs.current = SCENES.map(() => {
       const img = new Image()
       img.decoding = 'async'
-      img.src = import.meta.env.BASE_URL + s.img.replace(/^\//, '')
       return img
+    })
+    // сцены на 5 экранов ниже — не отбираем канал у ролика героя
+    return whenScrolled(() => {
+      imgs.current.forEach((img, i) => {
+        img.src = import.meta.env.BASE_URL + SCENES[i].img.replace(/^\//, '')
+      })
     })
   }, [])
 
@@ -123,17 +129,37 @@ export default function Cinema() {
         if (SCENES[i].side === 'left') wL += w; else wR += w
       }
 
-      // фоны — один слой вместо четырёх DOM-слоёв
+      /* Фоны — один слой вместо четырёх DOM-слоёв.
+         На узком экране широкий кадр 16:9 при заливке в портрет показывает
+         всего 26% своей ширины — картинка выглядит просто увеличенной.
+         Поэтому в портрете отдаём фото верхнюю полосу, где оно почти не
+         обрезается, а текст живёт под ней на тёмном. */
+      const portrait = W <= 760 || H > W
+      // 30% — столько остаётся над текстовым блоком (565px + отступ) на 844px.
+      // При заливке в такую полосу кадр 16:9 показывает ~87% своей ширины
+      // вместо 26% при полноэкранной обрезке.
+      const bandH = portrait ? H * 0.3 : H
+      if (portrait) {
+        ctx.fillStyle = '#070f16'
+        ctx.fillRect(0, 0, W, H)
+      }
       for (let i = 0; i < N; i++) {
         if (vis[i] <= 0.004) continue
         const img = imgs.current[i]
         if (!img?.complete || !img.naturalWidth) continue
         const p = local - i
-        const sc = 1.18 - 0.24 * clamp((p + 0.4) / 1.7)
-        const s = Math.max(W / img.naturalWidth, H / img.naturalHeight) * sc
+        const sc = (portrait ? 1.1 : 1.18) - (portrait ? 0.12 : 0.24) * clamp((p + 0.4) / 1.7)
+        const s = Math.max(W / img.naturalWidth, bandH / img.naturalHeight) * sc
         const w = img.naturalWidth * s, h = img.naturalHeight * s
         ctx.globalAlpha = vis[i]
-        ctx.drawImage(img, (W - w) / 2, (H - h) / 2, w, h)
+        if (portrait) {
+          ctx.save()
+          ctx.beginPath(); ctx.rect(0, 0, W, bandH); ctx.clip()
+          ctx.drawImage(img, (W - w) / 2, (bandH - h) / 2, w, h)
+          ctx.restore()
+        } else {
+          ctx.drawImage(img, (W - w) / 2, (H - h) / 2, w, h)
+        }
       }
       ctx.globalAlpha = 1
 

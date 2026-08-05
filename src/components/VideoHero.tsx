@@ -9,9 +9,38 @@ type Cap = { a: number; b: number; t: string; s: string }
 /* Два набора кадров. Вертикальный собран перекадрированием того же ролика,
    но из него вырезано окно 11.35–12.65 с (брак дорисовки на переходе
    зал → плитка), поэтому тайминг подписей у него свой. */
+/* Порядок загрузки: сначала каждый STRIDE-й кадр — тогда весь ролик
+   листается целиком уже через пару секунд, просто грубее, — потом
+   остальные подменяют их на лету. До этого на 4G последний кадр
+   приезжал на 24-й секунде, и герой всю первую половину минуты дёргался. */
+const STRIDE = 6
+
+/* 2×2-пиксельный AVIF: проверяем именно ДЕКОДИРОВАНИЕ.
+   canvas.toDataURL проверял бы кодирование — это другое и врёт. */
+const AVIF_PROBE =
+  'data:image/avif;base64,' +
+  'AAAAIGZ0eXBhdmlmAAAAAGF2aWZtaWYxbWlhZk1BMUIAAADrbWV0YQAAAAAAAAAhaGRscgAAAAAAAAAAcGljdAAAAAAAAAAA' +
+  'AAAAAAAAAAAOcGl0bQAAAAAAAQAAAB5pbG9jAAAAAEQAAAEAAQAAAAEAAAETAAAAJgAAAChpaW5mAAAAAAABAAAAGmluZmUC' +
+  'AAAAAAEAAGF2MDFDb2xvcgAAAABqaXBycAAAAEtpcGNvAAAAFGlzcGUAAAAAAAAAAgAAAAIAAAAQcGl4aQAAAAADCAgIAAAA' +
+  'DGF2MUOBAAwAAAAAE2NvbHJuY2x4AAEADQAGgAAAABdpcG1hAAAAAAAAAAEAAQQBAoMEAAAALm1kYXQSAAoIGAA2iAhoNCAy' +
+  'GBrHh4XhzDDDAoAAAJA1jjx+jUo7F6iH4A=='
+
+let avifProbe: Promise<boolean> | null = null
+const supportsAvif = () => {
+  if (!avifProbe) {
+    avifProbe = new Promise<boolean>((res) => {
+      const img = new Image()
+      img.onload = () => res(img.width === 2)
+      img.onerror = () => res(false)
+      img.src = AVIF_PROBE
+    })
+  }
+  return avifProbe
+}
+
 const SETS = {
   desktop: {
-    dir: 'video/frames/f_', n: 150,
+    dir: 'video/frames/f_', avif: 'video/frames-avif/f_', n: 150,
     caps: [
       { a: 0.21, b: 0.43, t: 'Детские площадки', s: 'CASPUR 4000 · связующее для резиновой крошки' },
       { a: 0.52, b: 0.73, t: 'Стадионы и футбольные поля', s: 'CASPOL 140 2-К · клей для искусственной травы' },
@@ -20,7 +49,7 @@ const SETS = {
     ] as Cap[],
   },
   mobile: {
-    dir: 'video/frames-mobile/m_', n: 150,
+    dir: 'video/frames-mobile/m_', avif: 'video/frames-mobile-avif/m_', n: 150,
     caps: [
       { a: 0.19, b: 0.39, t: 'Детские площадки', s: 'CASPUR 4000 · связующее' },
       { a: 0.47, b: 0.655, t: 'Стадионы и поля', s: 'CASPOL 140 2-К · клей' },
@@ -65,26 +94,48 @@ export default function VideoHero() {
   }, [])
 
   useEffect(() => {
+    let stop = false
     let done = 0
     setReady(0)
-    imgs.current = Array.from({ length: set.n }, (_, i) => {
+    imgs.current = Array.from({ length: set.n }, () => {
       const img = new Image()
       img.decoding = 'async'
-      img.src = `${BASE}${set.dir}${String(i).padStart(3, '0')}.webp`
-      const bump = () => { done++; if (done % 8 === 0 || done === set.n) setReady(done) }
-      img.onload = bump
-      img.onerror = bump
       return img
     })
 
-    // заранее распаковываем кадры: иначе первый проход упирается в декодирование
-    let stop = false
+    const bump = () => { done++; if (done % 8 === 0 || done === set.n) setReady(done) }
+
     ;(async () => {
+      const avif = await supportsAvif()
+      if (stop) return
+      const dir = avif ? set.avif : set.dir
+      const ext = avif ? '.avif' : '.webp'
+
+      const load = (i: number) => new Promise<void>((res) => {
+        const img = imgs.current[i]
+        if (!img) return res()
+        const fin = () => { bump(); res() }
+        img.onload = fin
+        img.onerror = fin
+        img.src = `${BASE}${dir}${String(i).padStart(3, '0')}${ext}`
+      })
+
+      const coarse: number[] = [], rest: number[] = []
+      for (let i = 0; i < set.n; i++) (i % STRIDE === 0 ? coarse : rest).push(i)
+
+      // грубый проход целиком, и только потом всё остальное
+      await Promise.all(coarse.map(load))
+      if (stop) return
+      await Promise.all(rest.map(load))
+      if (stop) return
+
+      // распаковываем заранее, иначе первый проход упрётся в декодирование
       for (const img of imgs.current) {
         if (stop) return
-        try { await img.decode() } catch { /* ещё грузится */ }
+        try { await img.decode() } catch { /* кадр не доехал */ }
       }
     })()
+
     return () => { stop = true }
   }, [set])
 
@@ -137,16 +188,29 @@ export default function VideoHero() {
       const p = pin !== null ? pin : clamp((window.scrollY - geo.top) / (span || 1))
 
       const f = p * (set.n - 1)
-      const i0 = Math.floor(f), frac = f - i0
-      const stamp = `${i0}|${Math.round(frac * 40)}`
+      const want = Math.floor(f), frac = f - want
+
+      /* Пока набор догружается, берём ближайший доступный кадр, а не пустоту:
+         после грубого прохода нужный всегда найдётся не дальше STRIDE. */
+      const ready = (i: number) => {
+        const im = imgs.current[i]
+        return im?.complete && im.naturalWidth ? im : null
+      }
+      let i0 = -1
+      if (ready(want)) i0 = want
+      else for (let d = 1; d <= STRIDE + 1 && i0 < 0; d++) {
+        if (ready(want - d)) i0 = want - d
+        else if (ready(want + d)) i0 = want + d
+      }
+
       /* Метку ставим, только если кадр реально нарисован. Иначе на старте,
          пока картинки ещё грузятся, метка запирает холст чёрным навсегда:
          тот же stamp больше никогда не проходит проверку. */
-      const base = imgs.current[i0]
-      if (stamp !== lastFrame && base?.complete && base.naturalWidth) {
+      const stamp = `${i0}|${i0 === want ? Math.round(frac * 40) : 0}`
+      if (stamp !== lastFrame && i0 >= 0) {
         ctx.clearRect(0, 0, W, H)
-        cover(base, 1)
-        if (frac > 0.004 && i0 + 1 < set.n) cover(imgs.current[i0 + 1], frac)
+        cover(imgs.current[i0], 1)
+        if (i0 === want && frac > 0.004 && ready(want + 1)) cover(imgs.current[want + 1], frac)
         lastFrame = stamp
       }
 
