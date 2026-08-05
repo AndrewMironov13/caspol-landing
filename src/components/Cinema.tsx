@@ -84,24 +84,32 @@ export default function Cinema() {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
     }
     resize()
-    const ro = new ResizeObserver(resize)
+    const ro = new ResizeObserver(() => { resize(); measure(); onScroll() })
     ro.observe(canvas)
 
-    // спринг: сглаживание без задержки (прежние 32/24/0.7 догоняли ~3 с)
-    let value = 0, target = 0, vel = 0
-    const stiffness = 180, damping = 26, mass = 0.5
-    let raf = 0, last = performance.now()
+    /* Без пружины: позиция сцены — чистая функция от скролла.
+       Любое сглаживание отстаёт от руки и читается как лаг. */
+    let raf = 0
     const memoC = SCENES.map(() => -1)
     const memoS = { l: -1, r: -1 }
 
-    const readTarget = () => {
-      const span = wrap.offsetHeight - window.innerHeight
-      target = clamp((window.scrollY - wrap.offsetTop) / (span || 1))
+    // геометрия измеряется редко, а не каждый кадр
+    const geo = { top: 0, height: 0 }
+    const measure = () => { geo.top = wrap.offsetTop; geo.height = wrap.offsetHeight }
+    measure()
+
+    const progress = () => {
+      const span = geo.height - window.innerHeight
+      return clamp((window.scrollY - geo.top) / (span || 1))
     }
-    readTarget(); value = target
+
+    // геометрия может сдвинуться, когда догрузятся шрифты и картинки
+    window.addEventListener('load', measure)
+    const remeasure = [setTimeout(measure, 400), setTimeout(measure, 1500)]
+
 
     const render = () => {
-      const local = value * N
+      const local = progress() * N
       ctx.clearRect(0, 0, W, H)
 
       // веса слоёв как при реальном наложении (снизу вверх)
@@ -153,24 +161,24 @@ export default function Cinema() {
       if (idx !== activeRef.current) { activeRef.current = idx; setActive(idx) }
     }
 
-    const tick = (now: number) => {
-      const dt = Math.min(0.05, (now - last) / 1000); last = now
-      const r = wrap.getBoundingClientRect()
+    // рисуем по событию, а не крутим цикл вхолостую
+    const draw = () => {
       const vh = window.innerHeight || 1
-      if (r.bottom < -vh * 0.3 || r.top > vh * 1.3) { raf = requestAnimationFrame(tick); return }
-      resize()
-      vel += ((stiffness * (target - value) - damping * vel) / mass) * dt
-      value += vel * dt
+      const top = geo.top - window.scrollY
+      if (top + geo.height < -vh * 0.3 || top > vh * 1.3) return
       render()
-      raf = requestAnimationFrame(tick)
     }
-    raf = requestAnimationFrame(tick)
-
-    const onScroll = () => readTarget()
+    const onScroll = () => {
+      if (raf) return
+      raf = requestAnimationFrame(() => { raf = 0; draw() })
+    }
+    draw()
     window.addEventListener('scroll', onScroll, { passive: true })
     window.addEventListener('resize', onScroll)
     return () => {
-      cancelAnimationFrame(raf)
+      if (raf) cancelAnimationFrame(raf)
+      remeasure.forEach(clearTimeout)
+      window.removeEventListener('load', measure)
       ro.disconnect()
       window.removeEventListener('scroll', onScroll)
       window.removeEventListener('resize', onScroll)

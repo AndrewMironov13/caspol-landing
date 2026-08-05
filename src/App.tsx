@@ -7,8 +7,8 @@ import LeadForm, { type Prefill } from './components/LeadForm'
 
 /* ---- КОНТАКТЫ: подтвердить у заказчика ---- */
 const EMAIL = 'info@caspol.ru'
-const PHONE_1 = '+7 (904) 040-85-55'
-const PHONE_2 = '+7 (953) 561-87-75'
+const PHONE_1 = '+7 (950) 347-01-96'
+const PHONE_2 = '+7 (904) 040-85-55'
 const HOURS = 'Пн–Чт 8:00–17:00, Пт 8:00–16:00'
 const ADDRESS = '606002, Нижегородская обл., г. Дзержинск, ул. Красноармейская, д. 15, корп. А'
 const MAP_SRC = `https://yandex.ru/map-widget/v1/?text=${encodeURIComponent('Дзержинск, улица Красноармейская, 15 корпус А')}&z=16`
@@ -47,23 +47,62 @@ function useReveal() {
   }, [])
 }
 
+const NAV = [
+  ['#obj-1', 'Линейка'],
+  ['#calc', 'Калькулятор'],
+  ['#contacts', 'Контакты'],
+]
+
 function Header() {
   const [scrolled, setScrolled] = useState(false)
+  const [open, setOpen] = useState(false)
+
   useEffect(() => {
     const on = () => setScrolled(window.scrollY > window.innerHeight * 0.75)
     on(); window.addEventListener('scroll', on, { passive: true })
     return () => window.removeEventListener('scroll', on)
   }, [])
+
+  // пока меню открыто, страница под ним не прокручивается
+  useEffect(() => {
+    document.body.style.overflow = open ? 'hidden' : ''
+    return () => { document.body.style.overflow = '' }
+  }, [open])
+
+  useEffect(() => {
+    const esc = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false) }
+    window.addEventListener('keydown', esc)
+    return () => window.removeEventListener('keydown', esc)
+  }, [])
+
   return (
-    <header className={`header ${scrolled ? 'header--scrolled' : ''}`}>
-      <a className="header__logo" href="#top">CAS<b>POL</b></a>
-      <nav className="header__nav">
-        <a href="#obj-1">Линейка</a>
-        <a href="#calc">Калькулятор</a>
-        <a href="#contacts">Контакты</a>
-      </nav>
-      <a href="#contacts" className="btn btn--primary header__cta">Получить прайс</a>
-    </header>
+    <>
+      <header className={`header ${scrolled ? 'header--scrolled' : ''} ${open ? 'header--open' : ''}`}>
+        <a className="header__logo" href="#top" onClick={() => setOpen(false)}>CAS<b>POL</b></a>
+        <nav className="header__nav">
+          {NAV.map(([href, label]) => <a key={href} href={href}>{label}</a>)}
+        </nav>
+        <a href="#contacts" className="btn btn--primary header__cta">Получить прайс</a>
+        <button
+          className={`burger ${open ? 'is-open' : ''}`}
+          onClick={() => setOpen((v) => !v)}
+          aria-label={open ? 'Закрыть меню' : 'Открыть меню'}
+          aria-expanded={open}
+        ><i /><i /><i /></button>
+      </header>
+
+      <div className={`mmenu ${open ? 'is-open' : ''}`} onClick={() => setOpen(false)}>
+        <nav className="mmenu__inner" onClick={(e) => e.stopPropagation()}>
+          {NAV.map(([href, label]) => (
+            <a key={href} href={href} onClick={() => setOpen(false)}>{label}</a>
+          ))}
+          <a className="mmenu__phone" href={`tel:${PHONE_1.replace(/[^\d+]/g, '')}`}>{PHONE_1}</a>
+          <a href="#contacts" className="btn btn--primary btn--wide btn--lg" onClick={() => setOpen(false)}>
+            Получить прайс
+          </a>
+        </nav>
+      </div>
+    </>
   )
 }
 
@@ -71,6 +110,8 @@ function Header() {
 export default function App() {
   useReveal()
   const [prefill, setPrefill] = useState<Prefill | undefined>()
+  // на телефоне карта перехватывает свайп — включаем её только по тапу
+  const [mapLive, setMapLive] = useState(false)
 
   // служебный режим для скриншотов: ?h=760 фиксирует высоту полноэкранных секций, ?y=605 — прокрутка
   useEffect(() => {
@@ -172,8 +213,13 @@ export default function App() {
                 <div><b>Компания</b><p>ООО «Каспол» — полиуретановые системы</p></div>
               </div>
             </div>
-            <div className="map reveal">
+            <div className={`map reveal${mapLive ? ' is-live' : ''}`}>
               <iframe src={MAP_SRC} title="Каспол на карте — Дзержинск" loading="lazy" allowFullScreen />
+              {!mapLive && (
+                <button type="button" className="map__lock" onClick={() => setMapLive(true)}>
+                  <span>Нажмите, чтобы двигать карту</span>
+                </button>
+              )}
             </div>
           </div>
         </div>

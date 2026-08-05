@@ -135,6 +135,39 @@ h1, h2, h3, h4 { font-family: var(--f-display); font-weight: 800; line-height: 1
 .header__cta { padding: 11px 22px; font-size: 15px; }
 @media (max-width: 980px) { .header__nav { display: none; } }
 
+
+/* ---------- бургер и мобильное меню ---------- */
+.burger { display: none; width: 44px; height: 44px; position: relative; z-index: 70;
+  border-radius: 12px; align-items: center; justify-content: center; flex-direction: column; gap: 5px; }
+.burger i { display: block; width: 22px; height: 2px; border-radius: 2px; background: #fff;
+  transition: transform .28s ease, opacity .2s ease, background .3s; }
+.header--scrolled .burger i { background: var(--ink); }
+.header--open .burger i { background: #fff; }
+.burger.is-open i:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.burger.is-open i:nth-child(2) { opacity: 0; }
+.burger.is-open i:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+.mmenu { position: fixed; inset: 0; z-index: 65; background: rgba(8,14,20,.97);
+  opacity: 0; visibility: hidden; transition: opacity .28s ease, visibility .28s;
+  display: flex; align-items: center; justify-content: center; padding: var(--gutter); }
+.mmenu.is-open { opacity: 1; visibility: visible; }
+.mmenu__inner { display: flex; flex-direction: column; gap: 4px; width: 100%; max-width: 420px; text-align: center; }
+.mmenu__inner > a:not(.btn) { font-family: var(--f-display); font-weight: 700; font-size: 26px;
+  color: #fff; padding: 9px 0; line-height: 1.25; transform: translateY(14px); opacity: 0;
+  transition: transform .35s cubic-bezier(.2,.7,.2,1), opacity .35s; }
+.mmenu.is-open .mmenu__inner > a:not(.btn) { transform: none; opacity: 1; }
+.mmenu.is-open .mmenu__inner > a:nth-child(1) { transition-delay: .06s }
+.mmenu.is-open .mmenu__inner > a:nth-child(2) { transition-delay: .12s }
+.mmenu.is-open .mmenu__inner > a:nth-child(3) { transition-delay: .18s }
+.mmenu.is-open .mmenu__inner > a:nth-child(4) { transition-delay: .24s }
+.mmenu__phone { color: var(--brand-sky) !important; font-size: 22px !important; }
+.mmenu .btn { margin-top: 8px; }
+
+@media (max-width: 980px) {
+  .burger { display: flex; }
+  .header__cta { display: none; }
+}
+
 /* ---------- ВИДЕО-HERO: скролл-скраб полёта ---------- */
 .vhero { position: relative; z-index: 1; background: var(--d1); }
 .vhero__stage { position: sticky; top: 0; height: 100svh; overflow: hidden; }
@@ -192,6 +225,14 @@ h1, h2, h3, h4 { font-family: var(--f-display); font-weight: 800; line-height: 1
     linear-gradient(rgba(6,14,20,.1), rgba(6,14,20,.1)),
     radial-gradient(120% 64% at 50% 88%, rgba(6,14,20,.74) 0%, rgba(6,14,20,0) 68%),
     linear-gradient(0deg, rgba(6,14,20,.94) 2%, rgba(6,14,20,.7) 34%, rgba(6,14,20,.3) 64%, rgba(6,14,20,.44) 100%); }
+/* На узком экране плитки применения уходят в два ряда и поднимают заголовок
+   туда, где десктопный скрим уже прозрачный — тянем плотную часть выше. */
+@media (max-width: 760px) {
+  .hero__scrim { background:
+    linear-gradient(rgba(6,14,20,.16), rgba(6,14,20,.16)),
+    radial-gradient(150% 78% at 50% 94%, rgba(6,14,20,.8) 0%, rgba(6,14,20,0) 74%),
+    linear-gradient(0deg, rgba(6,14,20,.95) 2%, rgba(6,14,20,.87) 44%, rgba(6,14,20,.6) 72%, rgba(6,14,20,.5) 100%); }
+}
 .hero__content { position: absolute; inset: auto 0 0 0; padding: 0 var(--gutter) clamp(46px, 7vh, 84px);
   will-change: opacity, transform; }
 .hero__inner { max-width: var(--maxw); margin-inline: auto; display: flex; flex-direction: column;
@@ -255,6 +296,25 @@ h1, h2, h3, h4 { font-family: var(--f-display); font-weight: 800; line-height: 1
   border-radius: 13px; padding: 11px 17px; }
 .cscene__facts .fact b { display: block; font-family: var(--f-display); font-weight: 800; font-size: 17px; color: #fff; }
 .cscene__facts .fact span { font-size: 12.5px; color: rgba(238,244,248,.72); }
+/* Узкий (360px) или низкий (667–740px) телефон: сцена впритык не помещалась
+   под шапку. Порог специально ниже 390/844, чтобы на обычном айфоне
+   типографика осталась крупной. */
+@media (max-width: 370px), (max-height: 780px) {
+  .cscene h2 { font-size: 27px; margin: 10px 0 12px; }
+  .cscene__prod { font-size: 13.5px; padding: 7px 14px; margin-bottom: 15px; }
+  .cscene p { font-size: 15px; }
+  .cscene__facts { margin-top: 15px !important; }
+  .cscene__cta { margin-top: 18px; gap: 10px; }
+}
+/* На мобильном плитки с широкой подписью вставали по одной в ряд и сцена
+   переставала помещаться в экран — заголовок уезжал под шапку.
+   Фиксированная сетка 2×2 делает высоту сцены предсказуемой. */
+@media (max-width: 760px) {
+  .cscene__facts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 20px; }
+  .cscene__facts .fact { padding: 9px 13px; }
+  .cscene__facts .fact b { font-size: 15.5px; }
+  .cscene__facts .fact span { font-size: 11.5px; line-height: 1.3; display: block; }
+}
 .cscene__cta { margin-top: 28px; display: flex; gap: 12px; flex-wrap: wrap; }
 
 /* индикатор сцен */
@@ -293,6 +353,12 @@ input[type="range"]::-moz-range-thumb { width: 22px; height: 22px; border-radius
 .seg button { flex: 1; padding: 10px 14px; border-radius: 999px; font-weight: 700; font-size: 14px; color: var(--ink-2); font-family: var(--f-display); transition: all .16s; white-space: nowrap; }
 .seg button.is-on { background: #fff; color: var(--brand-2); box-shadow: var(--sh-1); }
 .seg--prod button.is-on { background: var(--brand); color: #fff; }
+/* На узком экране кнопки всё равно не влезают в строку, а радиус 999px
+   на многострочном блоке превращает подложку в линзу — кладём в столбец. */
+@media (max-width: 620px) {
+  .seg { flex-direction: column; border-radius: 20px; }
+  .seg button { border-radius: 15px; white-space: normal; padding: 12px 14px; }
+}
 .calc__result { background: linear-gradient(168deg, var(--d3), var(--d1)); color: #fff; padding: clamp(28px, 3.2vw, 46px); display: flex; flex-direction: column; justify-content: center; position: relative; overflow: hidden; }
 .calc__result::before { content: ""; position: absolute; width: 340px; height: 340px; right: -110px; top: -130px; background: radial-gradient(circle, rgba(4,146,196,.34), transparent 62%); }
 .calc__big { font-family: var(--f-display); font-weight: 800; font-size: clamp(50px, 7.4vw, 84px); line-height: .95; letter-spacing: -.045em; font-variant-numeric: tabular-nums; margin: 14px 0 2px; position: relative; }
@@ -349,7 +415,13 @@ input[type="range"]::-moz-range-thumb { width: 22px; height: 22px; border-radius
 .contact b { display: block; font-family: var(--f-display); font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 3px; }
 .contact a, .contact p { font-size: 16.5px; color: var(--ink); font-weight: 500; }
 .contact a:hover { color: var(--brand); }
-.map { border-radius: var(--r-xl); overflow: hidden; box-shadow: var(--sh-2); border: 1px solid var(--line); min-height: 380px; background: var(--bg-soft-2); }
+.map { position: relative; border-radius: var(--r-xl); overflow: hidden; box-shadow: var(--sh-2); border: 1px solid var(--line); min-height: 380px; background: var(--bg-soft-2); }
+/* пока карта не «разбужена» тапом, свайп по ней прокручивает страницу */
+.map__lock { display: none; position: absolute; inset: 0; z-index: 2; width: 100%;
+  align-items: flex-end; justify-content: center; padding: 16px; background: transparent; }
+.map__lock span { background: rgba(10,16,22,.74); color: #fff; font-size: 13px; font-weight: 600;
+  padding: 9px 15px; border-radius: 999px; }
+@media (max-width: 900px) { .map__lock { display: flex; } }
 .map iframe { width: 100%; height: 100%; min-height: 380px; border: 0; display: block; }
 @media (max-width: 900px) { .mapgrid { grid-template-columns: 1fr; } }
 

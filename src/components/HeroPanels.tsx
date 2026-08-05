@@ -61,8 +61,15 @@ export default function HeroPanels() {
       canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr)
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
     }
-    resize()
-    const ro = new ResizeObserver(resize)
+    const geo = { top: 0, height: 0 }
+    const measure = () => { geo.top = wrap.offsetTop; geo.height = wrap.offsetHeight }
+    resize(); measure()
+    const ro = new ResizeObserver(() => { resize(); measure() })
+
+    // геометрия может сдвинуться, когда догрузятся шрифты и картинки
+    window.addEventListener('load', measure)
+    const remeasure = [setTimeout(measure, 400), setTimeout(measure, 1500)]
+
     ro.observe(canvas)
 
     const draw = (q: number) => {
@@ -102,13 +109,13 @@ export default function HeroPanels() {
 
     const apply = () => {
       const vh = window.innerHeight || 1
-      const r = wrap.getBoundingClientRect()
-      if (r.bottom < -vh * 0.4 || r.top > vh * 1.4) return
+      // видимость и фаза — по закешированной геометрии, без пересчёта вёрстки
+      const top = geo.top - window.scrollY
+      if (top + geo.height < -vh * 0.4 || top > vh * 1.4) return
 
-      resize()
-      const span = wrap.offsetHeight - vh
+      const span = geo.height - vh
       // служебное: ?q=0.5 фиксирует фазу секции для проверок без прокрутки
-      const q = pin !== null ? pin : clamp((window.scrollY - wrap.offsetTop) / (span || 1))
+      const q = pin !== null ? pin : clamp((window.scrollY - geo.top) / (span || 1))
 
       draw(q)
 
@@ -132,6 +139,8 @@ export default function HeroPanels() {
     window.addEventListener('scroll', onScroll, { passive: true })
     window.addEventListener('resize', onScroll)
     return () => {
+      remeasure.forEach(clearTimeout)
+      window.removeEventListener('load', measure)
       window.removeEventListener('scroll', onScroll)
       window.removeEventListener('resize', onScroll)
       ro.disconnect()
