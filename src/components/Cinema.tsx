@@ -168,10 +168,17 @@ export default function Cinema() {
       if (lR !== memoS.l) { if (scrimL.current) scrimL.current.style.opacity = String(lR); memoS.l = lR }
       if (rR !== memoS.r) { if (scrimR.current) scrimR.current.style.opacity = String(rR); memoS.r = rR }
 
+      /* Первая сцена проявляется уже на въезде секции, а не после того, как та
+         прилипла: до прилипания прогресс зажат в ноль, и полэкрана под
+         фотополосой оставалось пустым — на мобильном это читалось как провал
+         между секциями (фото занимает лишь верхние 30%). */
+      const arrive = smooth(0.85, 0.25, (geo.top - window.scrollY) / (window.innerHeight || 1))
+
       for (let i = 0; i < N; i++) {
         const p = local - i
         const isLast = i === N - 1
-        const cIn = Math.round(smooth(0.04, 0.24, p) * (1 - (isLast ? 0 : smooth(0.8, 0.99, p))) * 200) / 200
+        const on = i === 0 ? Math.max(smooth(0.04, 0.24, p), arrive) : smooth(0.04, 0.24, p)
+        const cIn = Math.round(on * (1 - (isLast ? 0 : smooth(0.8, 0.99, p))) * 200) / 200
         if (cIn !== memoC[i]) {
           const el = contentRefs.current[i]
           if (el) {

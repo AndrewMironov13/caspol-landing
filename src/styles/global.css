@@ -144,6 +144,12 @@ h1, h2, h3, h4 { font-family: var(--f-display); font-weight: 800; line-height: 1
 .header--scrolled .header__nav a:hover { color: var(--brand); }
 .header__cta { padding: 11px 22px; font-size: 15px; }
 @media (max-width: 980px) { .header__nav { display: none; } }
+/* Пока меню открыто, вся шапка держится над пеленой. Поднимать один логотип
+   бесполезно: z-index: 60 у .header создаёт свой контекст наложения, и дети
+   из него не выпрыгнут — логотип тонул в затемнении и выглядел полустёртым. */
+.header--open { z-index: 70; }
+.header--open .header__logo { color: #fff; }
+.header--open .header__logo b { color: var(--brand-sky); }
 
 
 /* ---------- бургер и мобильное меню ---------- */
@@ -361,8 +367,14 @@ h1, h2, h3, h4 { font-family: var(--f-display); font-weight: 800; line-height: 1
 .field__top label { font-family: var(--f-display); font-weight: 700; font-size: 15.5px; }
 .field__val { font-family: var(--f-display); font-weight: 800; font-size: 18px; color: var(--brand-2); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .field__val span { font-weight: 600; font-size: 13px; color: var(--ink-3); margin-left: 5px; }
-input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 7px; border-radius: 7px; background: var(--bg-soft-2); outline: none; cursor: pointer; }
-input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 26px; height: 26px; border-radius: 50%; background: linear-gradient(180deg, var(--brand), var(--brand-2)); border: 4px solid #fff; box-shadow: 0 3px 10px rgba(4,146,196,.5); cursor: pointer; }
+/* Палец попадает по боксу самого инпута, а не по нарисованному бегунку:
+   дорожка высотой 7px давала на телефоне полосу захвата в 7px. Бокс поднят
+   до 30px, а отрицательные поля возвращают в поток прежние 7px — раскладка
+   не меняется; сама дорожка рисуется через ::-*-track. */
+input[type="range"] { -webkit-appearance: none; appearance: none; display: block; width: 100%; height: 30px; margin-block: -11.5px; background: transparent; outline: none; cursor: pointer; }
+input[type="range"]::-webkit-slider-runnable-track { height: 7px; border-radius: 7px; background: var(--bg-soft-2); }
+input[type="range"]::-moz-range-track { height: 7px; border-radius: 7px; background: var(--bg-soft-2); }
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 26px; height: 26px; margin-top: -9.5px; border-radius: 50%; background: linear-gradient(180deg, var(--brand), var(--brand-2)); border: 4px solid #fff; box-shadow: 0 3px 10px rgba(4,146,196,.5); cursor: pointer; }
 input[type="range"]::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%; background: var(--brand); border: 4px solid #fff; cursor: pointer; }
 .seg { display: flex; background: var(--bg-soft-2); border-radius: 999px; padding: 5px; gap: 5px; flex-wrap: wrap; }
 .seg button { flex: 1; padding: 10px 14px; border-radius: 999px; font-weight: 700; font-size: 14px; color: var(--ink-2); font-family: var(--f-display); transition: all .16s; white-space: nowrap; }
@@ -430,6 +442,12 @@ input[type="range"]::-moz-range-thumb { width: 22px; height: 22px; border-radius
 .contact b { display: block; font-family: var(--f-display); font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 3px; }
 .contact a, .contact p { font-size: 16.5px; color: var(--ink); font-weight: 500; }
 .contact a:hover { color: var(--brand); }
+/* На телефоне «позвонить» и «написать» — главные действия страницы, а строка
+   текста даёт зону захвата всего 20px. Расширяем до 40px; десктоп не трогаем. */
+@media (max-width: 900px) {
+  .contact a { display: inline-block; padding-block: 10px; }
+  .footer a { display: inline-block; line-height: 1.5; padding-block: 7px; }
+}
 .map { position: relative; border-radius: var(--r-xl); overflow: hidden; box-shadow: var(--sh-2); border: 1px solid var(--line); min-height: 380px; background: var(--bg-soft-2); }
 /* пока карта не «разбужена» тапом, свайп по ней прокручивает страницу */
 .map__lock { display: none; position: absolute; inset: 0; z-index: 2; width: 100%;
