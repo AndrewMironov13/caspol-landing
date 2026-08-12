@@ -4,6 +4,10 @@ import { whenScrolled } from '../lib/deferLoad'
 export type Scene = {
   id: string; num: string; side: 'left' | 'right'; title: string; product: string;
   text: string; img: string; short: string; facts: [string, string][]
+  /* Куда смотреть при кадрировании в портрет (0 — левый край, 1 — правый).
+     Кадр 16:9 в вертикальную полосу влезает примерно на 58% ширины, и при
+     кропе по центру продукт — бочка или ведро — уезжал за край. */
+  focus: number
 }
 
 export const SCENES: Scene[] = [
@@ -12,7 +16,7 @@ export const SCENES: Scene[] = [
     title: 'Покрытие, на котором не страшно упасть',
     product: 'CASPUR 4000 · связующее',
     text: 'Связующее превращает резиновую крошку в цельный упругий монолит. Без швов и расслоений — там, где дети падают каждый день, а спрашивать за травму будут с вас.',
-    img: '/img/p1-caspur-playground.webp',
+    img: '/img/p1-caspur-playground.webp', focus: 0.78,
     facts: [['14–24 %', 'расход от массы крошки'], ['24 ч', 'до пешеходной нагрузки'], ['1-К', 'не нужно смешивать']],
   },
   {
@@ -20,7 +24,7 @@ export const SCENES: Scene[] = [
     title: 'Шов, который не разойдётся',
     product: 'CASPOL 140 2-К · клей',
     text: 'Двухкомпонентный полиуретановый клей для проклейки швов искусственной травы на соединительную ленту. Прочный эластичный шов без усадки и деформации, отверждение за сутки.',
-    img: '/img/p2-grass.webp',
+    img: '/img/p2-grass.webp', focus: 0.24,
     facts: [['300–350 г', 'на погонный метр шва'], ['8 : 1', 'соотношение А : Б'], ['24 ч', 'до отверждения']],
   },
   {
@@ -28,7 +32,7 @@ export const SCENES: Scene[] = [
     title: 'Пол не «поедет» под игровой нагрузкой',
     product: 'CASPOL 144 2-К · клей',
     text: 'Двухкомпонентный клей для рулонных резиново-полиуретановых покрытий и матов. Стоек к сдвигу, влаге, маслам, растворителям и перепадам температур. Без запаха и без усадки.',
-    img: '/img/p3-rolled.webp',
+    img: '/img/p3-rolled.webp', focus: 0.7,
     facts: [['800–1000 г/м²', 'расход'], ['≥ 2 Н/мм²', 'прочность на сдвиг'], ['80 °C', 'тепловая деформация']],
   },
   {
@@ -36,7 +40,7 @@ export const SCENES: Scene[] = [
     title: 'Одно связующее — плитка и бесшовные зоны',
     product: 'CASPUR 4000 · связующее',
     text: 'То же связующее работает и в прессовке резиновой плитки, и в бесшовной укладке уличных зон. Без растворителей, под ручную и механизированную укладку.',
-    img: '/img/p4-tiles.webp',
+    img: '/img/p4-tiles.webp', focus: 0.26,
     facts: [['≥ 99 %', 'нелетучих веществ'], ['Бочка 200 кг', 'заводская фасовка'], ['Ручная и мех.', 'способ укладки']],
   },
 ]
@@ -155,7 +159,8 @@ export default function Cinema() {
         if (portrait) {
           ctx.save()
           ctx.beginPath(); ctx.rect(0, 0, W, bandH); ctx.clip()
-          ctx.drawImage(img, (W - w) / 2, (bandH - h) / 2, w, h)
+          // кадрируем не по центру, а по продукту — см. Scene.focus
+          ctx.drawImage(img, (W - w) * SCENES[i].focus, (bandH - h) / 2, w, h)
           ctx.restore()
         } else {
           ctx.drawImage(img, (W - w) / 2, (H - h) / 2, w, h)

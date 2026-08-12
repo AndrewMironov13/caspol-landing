@@ -13,11 +13,31 @@ const HOURS = 'Пн–Чт 8:00–17:00, Пт 8:00–16:00'
 const ADDRESS = '606002, Нижегородская обл., г. Дзержинск, ул. Красноармейская, д. 15, корп. А'
 const MAP_SRC = `https://yandex.ru/map-widget/v1/?text=${encodeURIComponent('Дзержинск, улица Красноармейская, 15 корпус А')}&z=16`
 
+/* Все четыре цифры — из технических описаний, присланных заказчиком
+   (ТУ 20.52.10-003-40544164-2019 и ТУ 20.52.10-002-40544164-2019),
+   а не с этикеток на сгенерированных фото. Подпись обязана называть продукт:
+   ≥99 % относится к CASPUR 4000, прочность шва — к клеям 140 и 144. */
+const TRUST_NUMS: [string, string, string][] = [
+  ['≥ 99', '%', 'нелетучих веществ в CASPUR 4000 — слой не даёт усадки'],
+  ['24', 'ч', 'до пешеходной нагрузки после укладки'],
+  ['≥ 2', 'Н/мм²', 'прочность шва на сдвиг у клеёв CASPOL 140 и 144'],
+  ['200', 'кг', 'заводская бочка, отгрузка со склада в Дзержинске'],
+]
+
+const TICKER_ITEMS = [
+  'Собственное производство в Дзержинске',
+  'Технолог на связи',
+  'Гарантия на партию в договоре',
+  'ТУ, паспорт качества и сертификаты',
+  'Расчёт материала под объект',
+  'Отгрузка со склада',
+]
+const TickerRow = () => (
+  <p>{TICKER_ITEMS.map((t) => <span key={t}>{t}<s>◆</s></span>)}</p>
+)
+
 const I = {
   check: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>,
-  doc: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M14 3v5h5" /><path d="M8 3h6l6 6v11a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z" /><path d="M9 13h6M9 17h6" /></svg>,
-  shield: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" /><path d="m9 12 2 2 4-4" /></svg>,
-  support: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6" /><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z" /></svg>,
   factory: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M2 20h20" /><path d="M4 20V9l6 4V9l6 4V6l4 2v12" /></svg>,
   pin: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg>,
   phone: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2Z" /></svg>,
@@ -82,7 +102,9 @@ function Header() {
         <nav className="header__nav">
           {NAV.map(([href, label]) => <a key={href} href={href}>{label}</a>)}
         </nav>
-        <a href="#contacts" className="btn btn--primary header__cta">Получить прайс</a>
+        <a href="#contacts" className="btn btn--primary header__cta" onClick={() => setOpen(false)}>
+          <span className="full">Получить прайс</span><span className="short">Прайс</span>
+        </a>
         <button
           className={`burger ${open ? 'is-open' : ''}`}
           onClick={() => setOpen((v) => !v)}
@@ -137,13 +159,15 @@ export default function App() {
       {/* кино: одна камера через 4 сцены */}
       <Cinema />
 
-      {/* доверие */}
+      {/* доверие: цифры из техописаний, обещания — бегущей строкой */}
       <section className="trust">
         <div className="trust__row">
-          <div className="trust__cell">{I.doc}<div><b>Пройдёте приёмку</b><span>ТУ, паспорт качества и сертификаты</span></div></div>
-          <div className="trust__cell">{I.shield}<div><b>Отвечаем за партию</b><span>гарантия на материал в договоре</span></div></div>
-          <div className="trust__cell">{I.support}<div><b>Технолог на связи</b><span>подберёт норму и подскажет по укладке</span></div></div>
-          <div className="trust__cell">{I.factory}<div><b>Свой завод в России</b><span>Дзержинск — без валютных скачков и ожидания</span></div></div>
+          {TRUST_NUMS.map(([n, u, note]) => (
+            <div className="trust__n" key={n}><b>{n}<i>{u}</i></b><span>{note}</span></div>
+          ))}
+        </div>
+        <div className="trust__tick" aria-hidden="true">
+          <div><TickerRow /><TickerRow /></div>
         </div>
       </section>
 
