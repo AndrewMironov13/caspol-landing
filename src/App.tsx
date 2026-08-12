@@ -13,24 +13,27 @@ const HOURS = 'Пн–Чт 8:00–17:00, Пт 8:00–16:00'
 const ADDRESS = '606002, Нижегородская обл., г. Дзержинск, ул. Красноармейская, д. 15, корп. А'
 const MAP_SRC = `https://yandex.ru/map-widget/v1/?text=${encodeURIComponent('Дзержинск, улица Красноармейская, 15 корпус А')}&z=16`
 
-/* Все четыре цифры — из технических описаний, присланных заказчиком
-   (ТУ 20.52.10-003-40544164-2019 и ТУ 20.52.10-002-40544164-2019),
-   а не с этикеток на сгенерированных фото. Подпись обязана называть продукт:
-   ≥99 % относится к CASPUR 4000, прочность шва — к клеям 140 и 144. */
-const TRUST_NUMS: [string, string, string][] = [
-  ['≥ 99', '%', 'нелетучих веществ в CASPUR 4000 — слой не даёт усадки'],
-  ['24', 'ч', 'до пешеходной нагрузки после укладки'],
-  ['≥ 2', 'Н/мм²', 'прочность шва на сдвиг у клеёв CASPOL 140 и 144'],
-  ['200', 'кг', 'заводская бочка, отгрузка со склада в Дзержинске'],
+/* Блок про доверие, а не про характеристики: обещания касаются всей линейки,
+   а цифры неизбежно относятся к одному продукту и сужают смысл. Поэтому
+   утверждения — крупно, а характеристики бегут технической лентой снизу. */
+const TRUST_ITEMS: [string, string][] = [
+  ['Пройдёте приёмку', 'ТУ, паспорт качества и сертификаты — в комплекте с партией'],
+  ['Отвечаем за партию', 'гарантия на материал прописана в договоре поставки'],
+  ['Технолог на связи', 'подберёт норму расхода и подскажет по укладке на объекте'],
+  ['Свой завод в России', 'Дзержинск — без валютных скачков и ожидания контейнера'],
 ]
 
+/* Цифры — из технических описаний, присланных заказчиком
+   (ТУ 20.52.10-003-40544164-2019 и ТУ 20.52.10-002-40544164-2019),
+   а не с этикеток на сгенерированных фото. */
 const TICKER_ITEMS = [
-  'Собственное производство в Дзержинске',
-  'Технолог на связи',
-  'Гарантия на партию в договоре',
-  'ТУ, паспорт качества и сертификаты',
-  'Расчёт материала под объект',
-  'Отгрузка со склада',
+  '≥ 99 % нелетучих веществ',
+  '24 ч до пешеходной нагрузки',
+  '≥ 2 Н/мм² прочность шва на сдвиг',
+  'бочка 200 кг — отгрузка со склада',
+  'Шор Д 60',
+  'соотношение А : Б = 8 : 1',
+  'расчёт материала под объект',
 ]
 const TickerRow = () => (
   <p>{TICKER_ITEMS.map((t) => <span key={t}>{t}<s>◆</s></span>)}</p>
@@ -102,15 +105,24 @@ function Header() {
         <nav className="header__nav">
           {NAV.map(([href, label]) => <a key={href} href={href}>{label}</a>)}
         </nav>
-        <a href="#contacts" className="btn btn--primary header__cta" onClick={() => setOpen(false)}>
-          <span className="full">Получить прайс</span><span className="short">Прайс</span>
-        </a>
-        <button
-          className={`burger ${open ? 'is-open' : ''}`}
-          onClick={() => setOpen((v) => !v)}
-          aria-label={open ? 'Закрыть меню' : 'Открыть меню'}
-          aria-expanded={open}
-        ><i /><i /><i /></button>
+        <div className="header__act">
+          {/* звонок — второе действие рядом с формой: подрядчику часто быстрее
+              спросить голосом, чем заполнять поля */}
+          <a
+            className="header__tel"
+            href={`tel:${PHONE_1.replace(/[^\d+]/g, '')}`}
+            aria-label={`Позвонить ${PHONE_1}`}
+          >{I.phone}<span>{PHONE_1}</span></a>
+          <a href="#contacts" className="btn btn--primary header__cta" onClick={() => setOpen(false)}>
+            <span className="full">Получить прайс</span><span className="short">Прайс</span>
+          </a>
+          <button
+            className={`burger ${open ? 'is-open' : ''}`}
+            onClick={() => setOpen((v) => !v)}
+            aria-label={open ? 'Закрыть меню' : 'Открыть меню'}
+            aria-expanded={open}
+          ><i /><i /><i /></button>
+        </div>
       </header>
 
       <div className={`mmenu ${open ? 'is-open' : ''}`} onClick={() => setOpen(false)}>
@@ -162,8 +174,12 @@ export default function App() {
       {/* доверие: цифры из техописаний, обещания — бегущей строкой */}
       <section className="trust">
         <div className="trust__row">
-          {TRUST_NUMS.map(([n, u, note]) => (
-            <div className="trust__n" key={n}><b>{n}<i>{u}</i></b><span>{note}</span></div>
+          {TRUST_ITEMS.map(([title, note], i) => (
+            <div className="trust__n" key={title}>
+              <em>{String(i + 1).padStart(2, '0')}</em>
+              <b>{title}</b>
+              <span>{note}</span>
+            </div>
           ))}
         </div>
         <div className="trust__tick" aria-hidden="true">
