@@ -4,7 +4,7 @@ import type { Prefill } from './LeadForm'
 type ProdKey = 'caspur' | 'g140' | 'g144'
 const PRODUCTS: { key: ProdKey; label: string; full: string }[] = [
   { key: 'caspur', label: 'CASPUR 4000', full: 'CASPUR 4000 · связующее для резиновой крошки' },
-  { key: 'g140', label: 'CASPOL 140', full: 'CASPOL 140 2-К · клей для швов искусственной травы' },
+  { key: 'g140', label: 'CASPOL 140', full: 'CASPOL 140 2-К · клей для швов искусственного газона' },
   { key: 'g144', label: 'CASPOL 144', full: 'CASPOL 144 2-К · клей для рулонных покрытий' },
 ]
 

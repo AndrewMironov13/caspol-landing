@@ -3,12 +3,12 @@ import { whenScrolled } from '../lib/deferLoad'
 
 export const PANELS = [
   { id: 'pl', href: '#obj-1', title: 'Детские площадки', note: 'CASPUR 4000', shot: 'img/p1-caspur-playground.webp' },
-  { id: 'gr', href: '#obj-2', title: 'Искусственная трава', note: 'CASPOL 140 2-К', shot: 'img/p2-grass.webp' },
+  { id: 'gr', href: '#obj-2', title: 'Искусственный газон', note: 'CASPOL 140 2-К', shot: 'img/p2-grass.webp' },
   { id: 'rl', href: '#obj-3', title: 'Рулонные покрытия', note: 'CASPOL 144 2-К', shot: 'img/p3-rolled.webp' },
   { id: 'tl', href: '#obj-4', title: 'Резиновая плитка', note: 'CASPUR 4000', shot: 'img/p4-tiles.webp' },
 ]
 
-const RUNWAY = 300 // vh (первая половина проходит поверх видео)
+const RUNWAY = 380 // vh (первая половина проходит поверх видео)
 // исходный кадр композита и границы каждой панели внутри него (доли)
 const ORIG_W = 1366, ORIG_H = 769
 const BOXES = [
@@ -41,10 +41,10 @@ function PanelStrips() {
           и переход по «Линейке» из меню приводил бы на экран раньше */}
       <div className="pstrips__head" id="line">
         <span className="eyebrow">Линейка CASPOL</span>
-        <h2>Четыре объекта — <span className="accent">три материала</span></h2>
+        <h2>Разные задачи — <span className="accent">одна линейка</span></h2>
         <p>
-          Площадка, поле, зал и уличные зоны закрываются одной линейкой.
-          Меньше поставщиков — меньше рисков на объекте.
+          Площадка, поле, зал и уличные зоны — материалами одного производителя.
+          Один поставщик: меньше согласований и быстрее результат на объекте.
         </p>
       </div>
       <div className="pstrips__list">
@@ -231,10 +231,10 @@ function PanelCanvas() {
         <div className="hero__content" ref={contentRef}>
           <div className="hero__inner">
             <span className="eyebrow">Линейка CASPOL</span>
-            <h2>Четыре объекта — <span className="accent">три материала</span></h2>
+            <h2>Разные задачи — <span className="accent">одна линейка</span></h2>
             <p className="hero__sub">
-              Площадка, поле, зал и уличные зоны закрываются одной линейкой.
-              Меньше поставщиков — меньше рисков на объекте.
+              Площадка, поле, зал и уличные зоны — материалами одного производителя.
+              Один поставщик: меньше согласований и быстрее результат на объекте.
             </p>
 
             <nav className="hero__legend" aria-label="Применение">

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 
 const BASE = import.meta.env.BASE_URL
-const RUNWAY = 460 // vh: 360 прокат + 100 удержание последнего кадра
+const RUNWAY = 620 // vh: 420 прокат + 200 удержание (было 460 — заказчик просил спокойнее)
 const MOBILE_MAX = 760
 
 type Cap = { a: number; b: number; t: string; s: string }
@@ -43,7 +43,7 @@ const SETS = {
     dir: 'video/frames/f_', avif: 'video/frames-avif/f_', n: 150,
     caps: [
       { a: 0.21, b: 0.43, t: 'Детские площадки', s: 'CASPUR 4000 · связующее для резиновой крошки' },
-      { a: 0.52, b: 0.73, t: 'Стадионы и футбольные поля', s: 'CASPOL 140 2-К · клей для искусственной травы' },
+      { a: 0.52, b: 0.73, t: 'Стадионы и футбольные поля', s: 'CASPOL 140 2-К · клей для искусственного газона' },
       { a: 0.8, b: 0.882, t: 'Спортивные залы', s: 'CASPOL 144 2-К · клей для рулонных покрытий' },
       { a: 0.915, b: 0.997, t: 'Резиновая плитка и уличные зоны', s: 'CASPUR 4000 · связующее' },
     ] as Cap[],

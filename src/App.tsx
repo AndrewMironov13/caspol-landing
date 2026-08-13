@@ -8,7 +8,7 @@ import LeadForm, { type Prefill } from './components/LeadForm'
 /* ---- КОНТАКТЫ: подтвердить у заказчика ---- */
 const EMAIL = 'info@caspol.ru'
 const PHONE_1 = '+7 (950) 347-01-96'
-const PHONE_2 = '+7 (904) 040-85-55'
+const PHONE_2 = '+7 (904) 786-94-30'
 const HOURS = 'Пн–Чт 8:00–17:00, Пт 8:00–16:00'
 const ADDRESS = '606002, Нижегородская обл., г. Дзержинск, ул. Красноармейская, д. 15, корп. А'
 const MAP_SRC = `https://yandex.ru/map-widget/v1/?text=${encodeURIComponent('Дзержинск, улица Красноармейская, 15 корпус А')}&z=16`
@@ -39,8 +39,38 @@ const TickerRow = () => (
   <p>{TICKER_ITEMS.map((t) => <span key={t}>{t}<s>◆</s></span>)}</p>
 )
 
+/* ССЫЛКИ НА МЕССЕНДЖЕРЫ — ЗАПОЛНИТЬ.
+   Пустая строка = иконка не показывается, поэтому в эфир не уйдёт битая
+   ссылка. WhatsApp собран из номера отдела продаж с caspol.ru; если на нём
+   ватсапа нет — очистить. Телеграм и MAX ждут адресов от заказчика:
+   телеграм — вида https://t.me/<логин>, MAX — ссылка на профиль из приложения. */
+const MESSENGERS: { id: string; label: string; url: string }[] = [
+  { id: 'wa', label: 'Написать в WhatsApp', url: 'https://wa.me/79503470196' },
+  { id: 'tg', label: 'Написать в Telegram', url: '' },
+  { id: 'max', label: 'Написать в MAX', url: '' },
+].filter((m) => m.url)
+
+const MSG_ICON: Record<string, JSX.Element> = {
+  wa: <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15L2 22l5.2-1.4A10 10 0 1 0 12 2Zm0 18.2c-1.6 0-3.1-.4-4.4-1.2l-.3-.2-3.1.8.8-3-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.4-.7-1.7-.8-.2-.1-.4-.1-.5.1l-.7.9c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.1-.2 0-.4.1-.5l.4-.5c.1-.2.1-.3 0-.5l-.7-1.7c-.2-.4-.4-.4-.5-.4h-.5c-.2 0-.5.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.5 1 2.7c.1.2 1.8 2.8 4.4 3.9 1.6.7 2.2.7 3 .6.5-.1 1.4-.6 1.6-1.2.2-.6.2-1.1.1-1.2 0-.1-.2-.2-.4-.3Z" /></svg>,
+  tg: <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.9 4.3 19 20.1c-.2 1-.8 1.2-1.6.8l-4.5-3.3-2.2 2.1c-.2.2-.5.5-1 .5l.3-4.6 8.4-7.6c.4-.3-.1-.5-.6-.2L7.4 13.3l-4.5-1.4c-1-.3-1-1 .2-1.4l17.6-6.8c.8-.3 1.5.2 1.2 1.6Z" /></svg>,
+  // у MAX нет общеизвестного знака — ставим текстовый бейдж, а не выдуманный логотип
+  max: <b className="msg__max">MAX</b>,
+}
+
+const Messengers = ({ className = '' }: { className?: string }) =>
+  MESSENGERS.length === 0 ? null : (
+    <span className={`msgs ${className}`}>
+      {MESSENGERS.map((m) => (
+        <a
+          key={m.id} href={m.url} className={`msg msg--${m.id}`}
+          target="_blank" rel="noopener noreferrer"
+          aria-label={m.label} title={m.label}
+        >{MSG_ICON[m.id]}</a>
+      ))}
+    </span>
+  )
+
 const I = {
-  check: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>,
   factory: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M2 20h20" /><path d="M4 20V9l6 4V9l6 4V6l4 2v12" /></svg>,
   pin: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg>,
   phone: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2Z" /></svg>,
@@ -71,7 +101,7 @@ function useReveal() {
 }
 
 const NAV = [
-  ['#obj-1', 'Линейка'],
+  ['#obj-1', 'Каталог'],
   ['#calc', 'Калькулятор'],
   ['#contacts', 'Контакты'],
 ]
@@ -106,6 +136,7 @@ function Header() {
           {NAV.map(([href, label]) => <a key={href} href={href}>{label}</a>)}
         </nav>
         <div className="header__act">
+          <Messengers className="msgs--head" />
           {/* звонок — второе действие рядом с формой: подрядчику часто быстрее
               спросить голосом, чем заполнять поля */}
           <a
@@ -131,6 +162,7 @@ function Header() {
             <a key={href} href={href} onClick={() => setOpen(false)}>{label}</a>
           ))}
           <a className="mmenu__phone" href={`tel:${PHONE_1.replace(/[^\d+]/g, '')}`}>{PHONE_1}</a>
+          <Messengers className="msgs--menu" />
           <a href="#contacts" className="btn btn--primary btn--wide btn--lg" onClick={() => setOpen(false)}>
             Получить прайс
           </a>
@@ -208,14 +240,8 @@ export default function App() {
           <div className="leadwrap">
             <div className="lead__copy reveal">
               <span className="eyebrow">Заявка</span>
-              <h2 style={{ marginTop: 16 }}>Пришлём прайс и расчёт в течение рабочего дня</h2>
+              <h2 style={{ marginTop: 16 }}>Заполните заявку — и мы договоримся</h2>
               <p>Напишите площадь и тип объекта — технолог подберёт материал, посчитает объём и стоимость, подскажет по укладке.</p>
-              <ul className="lead__pts">
-                <li><span className="ck">{I.check}</span>Актуальный прайс на всю линейку</li>
-                <li><span className="ck">{I.check}</span>ТУ, паспорт качества и сертификаты</li>
-                <li><span className="ck">{I.check}</span>Расчёт материала под ваш объект</li>
-                <li><span className="ck">{I.check}</span>Отгрузка со склада в Дзержинске</li>
-              </ul>
             </div>
             <div className="reveal"><LeadForm prefill={prefill} /></div>
           </div>
