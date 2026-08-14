@@ -182,10 +182,10 @@ export default function App() {
       <section className="section section--soft">
         <div className="container">
           <div className="section-head reveal">
-            <span className="eyebrow">Калькулятор расхода</span>
+            <span className="eyebrow eyebrow--lg">Калькулятор расхода</span>
             <p className="lead">
               Выберите материал, задайте площадь и толщину. Покажем, сколько нужно,
-              и передадим расчёт технологу вместе с заявкой.
+              и передадим расчёт менеджеру вместе с заявкой.
             </p>
           </div>
           <div className="reveal"><Calculator onRequest={setPrefill} /></div>
@@ -199,7 +199,7 @@ export default function App() {
             <div className="lead__copy reveal">
               <span className="eyebrow">Заявка</span>
               <h2 style={{ marginTop: 16 }}>Заполните заявку — и мы договоримся</h2>
-              <p>Напишите площадь и тип объекта — технолог подберёт материал, посчитает объём и стоимость, подскажет по укладке.</p>
+              <p>Напишите площадь и тип объекта — менеджер подберёт материал, посчитает объём и стоимость, подскажет по укладке.</p>
             </div>
             <div className="reveal"><LeadForm prefill={prefill} /></div>
           </div>

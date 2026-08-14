@@ -52,7 +52,7 @@ const smooth = (e0: number, e1: number, x: number) => {
 }
 
 const N = SCENES.length
-const RUNWAY = 150 // vh на сцену (было 105 — заказчик просил спокойнее)
+const RUNWAY = 205 // vh на сцену (105 → 150 → 205: заказчик дважды просил спокойнее)
 
 export default function Cinema() {
   const wrapRef = useRef<HTMLDivElement>(null)
@@ -142,7 +142,7 @@ export default function Cinema() {
       // 30% — столько остаётся над текстовым блоком (565px + отступ) на 844px.
       // При заливке в такую полосу кадр 16:9 показывает ~87% своей ширины
       // вместо 26% при полноэкранной обрезке.
-      const bandH = portrait ? H * 0.3 : H
+      const bandH = portrait ? H * 0.34 : H
       if (portrait) {
         ctx.fillStyle = '#070f16'
         ctx.fillRect(0, 0, W, H)
@@ -152,18 +152,19 @@ export default function Cinema() {
         const img = imgs.current[i]
         if (!img?.complete || !img.naturalWidth) continue
         const p = local - i
-        const sc = (portrait ? 1.1 : 1.18) - (portrait ? 0.12 : 0.24) * clamp((p + 0.4) / 1.7)
+        const sc = (portrait ? 1.08 : 1.09) - (portrait ? 0.1 : 0.15) * clamp((p + 0.4) / 1.7)
         const s = Math.max(W / img.naturalWidth, bandH / img.naturalHeight) * sc
         const w = img.naturalWidth * s, h = img.naturalHeight * s
         ctx.globalAlpha = vis[i]
+        // кадрируем не по центру, а по продукту — см. Scene.focus
+        const dx = (W - w) * SCENES[i].focus
         if (portrait) {
           ctx.save()
           ctx.beginPath(); ctx.rect(0, 0, W, bandH); ctx.clip()
-          // кадрируем не по центру, а по продукту — см. Scene.focus
-          ctx.drawImage(img, (W - w) * SCENES[i].focus, (bandH - h) / 2, w, h)
+          ctx.drawImage(img, dx, (bandH - h) / 2, w, h)
           ctx.restore()
         } else {
-          ctx.drawImage(img, (W - w) / 2, (H - h) / 2, w, h)
+          ctx.drawImage(img, dx, (H - h) / 2, w, h)
         }
       }
       ctx.globalAlpha = 1

@@ -68,6 +68,9 @@ input, textarea { font-family: inherit; }
   letter-spacing: .16em; text-transform: uppercase; color: var(--brand-2);
 }
 .eyebrow::before { content: ""; width: 30px; height: 2px; background: var(--brand); border-radius: 2px; }
+/* Когда надзаголовок работает заголовком секции — размер под эту роль */
+.eyebrow--lg { font-size: clamp(19px, 2.4vw, 27px); letter-spacing: .06em; color: var(--ink); }
+.eyebrow--lg::before { width: 44px; height: 3px; }
 .section--dark .eyebrow, .scene .eyebrow { color: var(--brand-sky); }
 .section--dark .eyebrow::before, .scene .eyebrow::before { background: var(--brand-sky); }
 
@@ -137,16 +140,25 @@ h1, h2, h3, h4 { font-family: var(--f-display); font-weight: 800; line-height: 1
   display: flex; align-items: center; justify-content: space-between;
   padding: 18px var(--gutter); transition: background .3s, box-shadow .3s, padding .3s;
 }
-.header--scrolled { background: rgba(255,255,255,.9); backdrop-filter: blur(16px) saturate(1.3); box-shadow: 0 1px 0 var(--line), var(--sh-1); padding-block: 12px; }
+/* Сплошной подложки нет ни в каком состоянии — заказчик: белая плашка
+   закрывала кадр ролика. Читаемость даёт не фон шапки, а фон каждого
+   элемента: логотип и пункты меню оформлены кнопками. */
+.header--scrolled { background: transparent; box-shadow: none; padding-block: 14px; }
+.header__logo, .header__nav a {
+  padding: 9px 15px; border-radius: 999px;
+  background: rgba(9,17,24,.74); border: 1px solid rgba(255,255,255,.18);
+  transition: background .2s, border-color .2s, color .3s;
+}
+.header__logo { padding: 9px 16px; }
+.header__nav a:hover { background: rgba(9,17,24,.72); border-color: rgba(255,255,255,.34); }
 .header__logo { font-family: var(--f-display); font-weight: 800; font-size: 21px; color: #fff; transition: color .3s; }
 .header__logo b { color: var(--brand-sky); }
-.header--scrolled .header__logo { color: var(--ink); }
-.header--scrolled .header__logo b { color: var(--brand); }
+
 .header__nav { display: flex; align-items: center; gap: 28px; }
 .header__nav a { font-weight: 600; font-size: 15px; color: rgba(255,255,255,.9); transition: color .25s; }
-.header--scrolled .header__nav a { color: var(--ink-2); }
+
 .header__nav a:hover { color: var(--brand-sky); }
-.header--scrolled .header__nav a:hover { color: var(--brand); }
+
 .header__cta { padding: 11px 22px; font-size: 15px; }
 @media (max-width: 980px) { .header__nav { display: none; } }
 /* Пока меню открыто, вся шапка держится над пеленой. Поднимать один логотип
@@ -159,10 +171,11 @@ h1, h2, h3, h4 { font-family: var(--f-display); font-weight: 800; line-height: 1
 
 /* ---------- бургер и мобильное меню ---------- */
 .burger { display: none; width: 44px; height: 44px; position: relative; z-index: 70;
-  border-radius: 12px; align-items: center; justify-content: center; flex-direction: column; gap: 5px; }
+  background: rgba(9,17,24,.74); border: 1px solid rgba(255,255,255,.18); border-radius: 999px; align-items: center; justify-content: center; flex-direction: column; gap: 5px; }
 .burger i { display: block; width: 22px; height: 2px; border-radius: 2px; background: #fff;
   transition: transform .28s ease, opacity .2s ease, background .3s; }
-.header--scrolled .burger i { background: var(--ink); }
+
+.header--open .burger { background: transparent; border-color: transparent; }
 .header--open .burger i { background: #fff; }
 .burger.is-open i:nth-child(1) { transform: translateY(7px) rotate(45deg); }
 .burger.is-open i:nth-child(2) { opacity: 0; }
@@ -195,8 +208,7 @@ h1, h2, h3, h4 { font-family: var(--f-display); font-weight: 800; line-height: 1
   transition: background .2s, border-color .2s, color .2s;
 }
 .msg:hover { background: var(--brand-2); border-color: var(--brand-2); }
-.header--scrolled .msg { border-color: var(--line-2); color: var(--ink); }
-.header--scrolled .msg:hover { background: var(--brand-2); border-color: var(--brand-2); color: #fff; }
+.msg { background: rgba(9,17,24,.74); }
 .msg__max { font-family: var(--f-display); font-weight: 800; font-size: 11px; letter-spacing: .02em; }
 /* В шапке телефона места нет — там уже логотип, звонок, кнопка и бургер.
    На узком экране мессенджеры живут в меню, где для них есть строка. */
@@ -212,8 +224,8 @@ h1, h2, h3, h4 { font-family: var(--f-display); font-weight: 800; line-height: 1
   transition: color .3s;
 }
 .header__tel svg { color: var(--brand-sky); transition: color .3s; }
-.header--scrolled .header__tel { color: var(--ink); }
-.header--scrolled .header__tel svg { color: var(--brand); }
+.header__tel { padding: 9px 15px; border-radius: 999px;
+  background: rgba(9,17,24,.74); border: 1px solid rgba(255,255,255,.18); }
 .header__cta .short { display: none; }
 
 @media (max-width: 980px) {
@@ -227,7 +239,7 @@ h1, h2, h3, h4 { font-family: var(--f-display); font-weight: 800; line-height: 1
     width: 44px; height: 44px; gap: 0; justify-content: center;
     border-radius: 999px; border: 1.5px solid rgba(255,255,255,.42);
   }
-  .header--scrolled .header__tel { border-color: var(--line-2); }
+  
   .header__tel span { display: none; }
   .header__cta { padding: 9px 16px; font-size: 14px; }
   .header__cta .full { display: none; }
@@ -449,7 +461,10 @@ h1, h2, h3, h4 { font-family: var(--f-display); font-weight: 800; line-height: 1
   .cscene__scrim, .cscene__scrim--right {
     background: linear-gradient(0deg,
       rgba(7,15,22,1) 0%, rgba(7,15,22,1) 64%, rgba(7,15,22,.5) 68%, rgba(7,15,22,0) 72%); }
-  .cscene__wrap { align-items: flex-end; padding-bottom: 3vh; }
+  .cscene__wrap { align-items: flex-start; padding-top: calc(34svh + 14px); padding-bottom: 2vh; }
+  /* кнопки в одну строку — иначе контент не помещается под фото */
+  .cscene__cta { flex-wrap: nowrap; gap: 9px; }
+  .cscene__cta .btn { flex: 1; padding: 13px 10px; font-size: 14.5px; white-space: nowrap; }
 }
 
 /* ---------- калькулятор ---------- */
