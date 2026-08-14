@@ -72,7 +72,7 @@ export default function LeadForm({ prefill }: { prefill?: Prefill }) {
             <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
           </div>
           <h3>Заявка отправлена</h3>
-          <p>Технолог свяжется с вами в течение рабочего дня и пришлёт прайс с расчётом.</p>
+          <p>Менеджер свяжется с вами в течение рабочего дня и пришлёт прайс с расчётом</p>
           <button className="btn btn--brand" style={{ marginTop: 20 }} onClick={() => { setState('idle'); setF({ name: '', phone: '', email: '', object: '', area: '', note: '', trap: '' }) }}>
             Отправить ещё одну
           </button>

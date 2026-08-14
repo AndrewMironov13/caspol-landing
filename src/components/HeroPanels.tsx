@@ -1,11 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 import { whenScrolled } from '../lib/deferLoad'
 
+/* side — с какой стороны подпись: она встаёт напротив продукта, иначе
+   закрывает его. pos — точка кадрирования полосы: кадр 16:9 в полосу
+   обрезается по высоте, и без якоря у бочки срезало верх. */
 export const PANELS = [
-  { id: 'pl', href: '#obj-1', title: 'Детские площадки', note: 'CASPUR 4000', shot: 'img/p1-caspur-playground.webp' },
-  { id: 'gr', href: '#obj-2', title: 'Искусственный газон', note: 'CASPOL 140 2-К', shot: 'img/p2-grass.webp' },
-  { id: 'rl', href: '#obj-3', title: 'Рулонные покрытия', note: 'CASPOL 144 2-К', shot: 'img/p3-rolled.webp' },
-  { id: 'tl', href: '#obj-4', title: 'Резиновая плитка', note: 'CASPUR 4000', shot: 'img/p4-tiles.webp' },
+  { id: 'pl', href: '#obj-1', title: 'Детские площадки', note: 'CASPUR 4000', shot: 'img/p1-caspur-playground.webp', side: 'l', pos: '50% 42%' },
+  { id: 'gr', href: '#obj-2', title: 'Искусственный газон', note: 'CASPOL 140 2-К', shot: 'img/p2-grass.webp', side: 'r', pos: '50% 50%' },
+  { id: 'rl', href: '#obj-3', title: 'Рулонные покрытия', note: 'CASPOL 144 2-К', shot: 'img/p3-rolled.webp', side: 'l', pos: '50% 34%' },
+  { id: 'tl', href: '#obj-4', title: 'Резиновая плитка', note: 'CASPUR 4000', shot: 'img/p4-tiles.webp', side: 'r', pos: '50% 44%' },
 ]
 
 const RUNWAY = 380 // vh (первая половина проходит поверх видео)
@@ -44,13 +47,14 @@ function PanelStrips() {
         <h2>Разные задачи — <span className="accent">одна линейка</span></h2>
         <p>
           Площадка, поле, зал и уличные зоны — материалами одного производителя.
-          Один поставщик: меньше согласований и быстрее результат на объекте.
+          Один поставщик: меньше согласований и быстрее результат на объекте
         </p>
       </div>
       <div className="pstrips__list">
         {PANELS.map((p, i) => (
-          <a className="pstrip" href={p.href} key={p.id}>
-            <img src={import.meta.env.BASE_URL + p.shot} alt="" loading="lazy" decoding="async" />
+          <a className={`pstrip pstrip--${p.side}`} href={p.href} key={p.id}>
+            <img src={import.meta.env.BASE_URL + p.shot} alt="" loading="lazy" decoding="async"
+                 style={{ objectPosition: p.pos }} />
             <span className="pstrip__no">{String(i + 1).padStart(2, '0')}</span>
             <span className="pstrip__tx">
               <b>{p.title}</b>
@@ -234,7 +238,7 @@ function PanelCanvas() {
             <h2>Разные задачи — <span className="accent">одна линейка</span></h2>
             <p className="hero__sub">
               Площадка, поле, зал и уличные зоны — материалами одного производителя.
-              Один поставщик: меньше согласований и быстрее результат на объекте.
+              Один поставщик: меньше согласований и быстрее результат на объекте
             </p>
 
             <nav className="hero__legend" aria-label="Применение">

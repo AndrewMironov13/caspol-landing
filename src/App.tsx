@@ -185,7 +185,7 @@ export default function App() {
             <span className="eyebrow eyebrow--lg">Калькулятор расхода</span>
             <p className="lead">
               Выберите материал, задайте площадь и толщину. Покажем, сколько нужно,
-              и передадим расчёт менеджеру вместе с заявкой.
+              и передадим расчёт менеджеру вместе с заявкой
             </p>
           </div>
           <div className="reveal"><Calculator onRequest={setPrefill} /></div>
@@ -197,9 +197,9 @@ export default function App() {
         <div className="container">
           <div className="leadwrap">
             <div className="lead__copy reveal">
-              <span className="eyebrow">Заявка</span>
+              <span className="eyebrow eyebrow--lg">Заявка</span>
               <h2 style={{ marginTop: 16 }}>Заполните заявку — и мы договоримся</h2>
-              <p>Напишите площадь и тип объекта — менеджер подберёт материал, посчитает объём и стоимость, подскажет по укладке.</p>
+              <p>Напишите площадь и тип объекта — менеджер свяжется в ближайшее время, подберёт материал, посчитает объём и стоимость и подскажет по укладке</p>
             </div>
             <div className="reveal"><LeadForm prefill={prefill} /></div>
           </div>
@@ -256,7 +256,7 @@ export default function App() {
               <div className="footer__logo">CAS<b>POL</b></div>
               <p style={{ marginTop: 12, maxWidth: 330, fontSize: 14.5 }}>
                 Полиуретановые связующие и клеи для спортивных и детских покрытий.
-                Собственное производство в России.
+                Собственное производство в России
               </p>
             </div>
             <div>

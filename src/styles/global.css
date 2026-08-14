@@ -69,7 +69,7 @@ input, textarea { font-family: inherit; }
 }
 .eyebrow::before { content: ""; width: 30px; height: 2px; background: var(--brand); border-radius: 2px; }
 /* Когда надзаголовок работает заголовком секции — размер под эту роль */
-.eyebrow--lg { font-size: clamp(19px, 2.4vw, 27px); letter-spacing: .06em; color: var(--ink); }
+.eyebrow--lg { font-size: clamp(20px, 2.5vw, 29px); letter-spacing: .05em; color: var(--brand-2); }
 .eyebrow--lg::before { width: 44px; height: 3px; }
 .section--dark .eyebrow, .scene .eyebrow { color: var(--brand-sky); }
 .section--dark .eyebrow::before, .scene .eyebrow::before { background: var(--brand-sky); }
@@ -362,21 +362,27 @@ h1, h2, h3, h4 { font-family: var(--f-display); font-weight: 800; line-height: 1
 .pstrips__list { display: flex; flex-direction: column; margin-top: clamp(18px, 3.4vh, 28px); }
 .pstrip {
   position: relative; display: flex; align-items: flex-end; overflow: hidden;
-  height: clamp(128px, 18.5vh, 172px); margin-top: -11px;
+  height: clamp(158px, 24vh, 208px); margin-top: -11px;
   padding: 0 var(--gutter) 14px;
   clip-path: polygon(0 12px, 100% 0, 100% calc(100% - 12px), 0 100%);
 }
 .pstrip:first-child { margin-top: 0; }
 .pstrip img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-/* Два затемнения: снизу вверх — под подпись (иначе название ложится на белое
-   ведро и пропадает), слева направо — чтобы правая часть кадра с объектом
-   осталась открытой. */
+/* Затемнение только под подписью и только с её стороны — кадр остаётся
+   открытым там, где стоит продукт. */
 .pstrip::after {
   content: ""; position: absolute; inset: 0;
   background:
-    linear-gradient(0deg, rgba(7,15,22,.88) 0%, rgba(7,15,22,.44) 34%, rgba(7,15,22,0) 66%),
-    linear-gradient(90deg, rgba(7,15,22,.7) 0%, rgba(7,15,22,.26) 52%, rgba(7,15,22,0) 78%);
+    linear-gradient(0deg, rgba(7,15,22,.8) 0%, rgba(7,15,22,.34) 30%, rgba(7,15,22,0) 58%),
+    linear-gradient(90deg, rgba(7,15,22,.6) 0%, rgba(7,15,22,.18) 46%, rgba(7,15,22,0) 70%);
 }
+.pstrip--r { justify-content: flex-end; text-align: right; }
+.pstrip--r::after {
+  background:
+    linear-gradient(0deg, rgba(7,15,22,.8) 0%, rgba(7,15,22,.34) 30%, rgba(7,15,22,0) 58%),
+    linear-gradient(270deg, rgba(7,15,22,.6) 0%, rgba(7,15,22,.18) 46%, rgba(7,15,22,0) 70%);
+}
+.pstrip--r .pstrip__no { left: auto; right: var(--gutter); }
 .pstrip__no, .pstrip__tx { position: relative; z-index: 2; }
 .pstrip__no {
   position: absolute; top: 15px; left: var(--gutter); z-index: 2;
@@ -399,11 +405,11 @@ h1, h2, h3, h4 { font-family: var(--f-display); font-weight: 800; line-height: 1
 .cscene__content { pointer-events: auto; }
 .cscene__scrim { position: absolute; inset: 0; pointer-events: none; opacity: 0; }
 .cscene__scrim--left {
-  background: linear-gradient(90deg, rgba(6,13,19,.84) 0%, rgba(6,13,19,.6) 30%, rgba(6,13,19,.14) 58%, rgba(6,13,19,0) 76%),
-              linear-gradient(0deg, rgba(6,13,19,.3) 0%, rgba(6,13,19,0) 40%); }
+  background: linear-gradient(90deg, rgba(6,13,19,.76) 0%, rgba(6,13,19,.46) 28%, rgba(6,13,19,.06) 54%, rgba(6,13,19,0) 70%),
+              linear-gradient(0deg, rgba(6,13,19,.2) 0%, rgba(6,13,19,0) 34%); }
 .cscene__scrim--right {
-  background: linear-gradient(270deg, rgba(6,13,19,.84) 0%, rgba(6,13,19,.6) 30%, rgba(6,13,19,.14) 58%, rgba(6,13,19,0) 76%),
-              linear-gradient(0deg, rgba(6,13,19,.3) 0%, rgba(6,13,19,0) 40%); }
+  background: linear-gradient(270deg, rgba(6,13,19,.76) 0%, rgba(6,13,19,.46) 28%, rgba(6,13,19,.06) 54%, rgba(6,13,19,0) 70%),
+              linear-gradient(0deg, rgba(6,13,19,.2) 0%, rgba(6,13,19,0) 34%); }
 .cscene__wrap { position: relative; height: 100%; display: flex; align-items: center; }
 .cscene__inner { width: 100%; max-width: var(--maxw); margin-inline: auto; padding-inline: var(--gutter); display: flex; }
 .cscene--right .cscene__inner { justify-content: flex-end; }
