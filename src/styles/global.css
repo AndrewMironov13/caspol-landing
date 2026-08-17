@@ -360,9 +360,12 @@ h1, h2, h3, h4 { font-family: var(--f-display); font-weight: 800; line-height: 1
 .pstrips__head h2 .accent { color: var(--brand-sky); }
 .pstrips__head p { margin-top: 12px; font-size: 15px; line-height: 1.5; color: var(--d-muted); }
 .pstrips__list { display: flex; flex-direction: column; margin-top: clamp(18px, 3.4vh, 28px); }
+/* Высота полосы = высота самого кадра: 1366×769. Раньше полоса была ниже
+   пропорций фото, и cover срезал по высоте 19% — на объекте 04 это отрезало
+   низ бочки. При точном соотношении обрезки нет вообще, только диагональ. */
 .pstrip {
   position: relative; display: flex; align-items: flex-end; overflow: hidden;
-  height: clamp(158px, 24vh, 208px); margin-top: -11px;
+  aspect-ratio: 1366 / 769; margin-top: -11px;
   padding: 0 var(--gutter) 14px;
   clip-path: polygon(0 12px, 100% 0, 100% calc(100% - 12px), 0 100%);
 }
