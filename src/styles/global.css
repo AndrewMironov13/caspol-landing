@@ -431,19 +431,34 @@ h1, h2, h3, h4 { font-family: var(--f-display); font-weight: 800; line-height: 1
    типографика осталась крупной. */
 @media (max-width: 760px), (max-height: 780px) {
   .cscene h2 { font-size: 27px; margin: 10px 0 12px; }
-  .cscene__prod { font-size: 13.5px; padding: 7px 14px; margin-bottom: 15px; }
   .cscene p { font-size: 15px; }
   .cscene__facts { margin-top: 15px !important; }
   .cscene__cta { margin-top: 18px; gap: 10px; }
 }
-/* На мобильном плитки с широкой подписью вставали по одной в ряд и сцена
-   переставала помещаться в экран — заголовок уезжал под шапку.
-   Фиксированная сетка 2×2 делает высоту сцены предсказуемой. */
+/* Мобильная сцена была «налеплена»: под фото шли подряд крупная плашка
+   продукта, абзац, четыре коробки характеристик в два ряда с сиротой в
+   последнем и две кнопки — всё встык, без воздуха. Разгружаем: плашка
+   становится строкой, характеристики — одним рядом на разделителях без
+   коробок. Освободившееся место уходит фотографии. */
 @media (max-width: 760px) {
-  .cscene__facts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 20px; }
-  .cscene__facts .fact { padding: 9px 13px; }
-  .cscene__facts .fact b { font-size: 15.5px; }
-  .cscene__facts .fact span { font-size: 11.5px; line-height: 1.3; display: block; }
+  .cscene__prod {
+    background: none; border: 0; padding: 0; margin: 6px 0 0;
+    font-family: var(--f-mono); font-weight: 400; font-size: 12px;
+    letter-spacing: .05em; color: var(--brand-sky);
+  }
+  .cscene p { margin-top: 13px; line-height: 1.5; }
+  .cscene__facts {
+    display: flex; gap: 0; margin-top: 20px !important;
+    border-top: 1px solid rgba(255,255,255,.16); padding-top: 14px;
+  }
+  .cscene__facts .fact {
+    flex: 1; min-width: 0; background: none; border: 0;
+    border-left: 1px solid rgba(255,255,255,.14); border-radius: 0; padding: 0 9px;
+  }
+  .cscene__facts .fact:first-child { border-left: 0; padding-left: 0; }
+  .cscene__facts .fact b { font-size: 14.5px; letter-spacing: -.01em; }
+  .cscene__facts .fact span { font-size: 10.5px; line-height: 1.25; display: block; margin-top: 3px; }
+  .cscene__cta { margin-top: 22px; }
 }
 .cscene__cta { margin-top: 28px; display: flex; gap: 12px; flex-wrap: wrap; }
 
@@ -467,7 +482,7 @@ h1, h2, h3, h4 { font-family: var(--f-display); font-weight: 800; line-height: 1
   .cscene__scrim, .cscene__scrim--right {
     background: linear-gradient(0deg,
       rgba(7,15,22,1) 0%, rgba(7,15,22,1) 64%, rgba(7,15,22,.5) 68%, rgba(7,15,22,0) 72%); }
-  .cscene__wrap { align-items: flex-start; padding-top: calc(34svh + 14px); padding-bottom: 2vh; }
+  .cscene__wrap { align-items: flex-start; padding-top: calc(42svh + 16px); padding-bottom: 2vh; }
   /* кнопки в одну строку — иначе контент не помещается под фото */
   .cscene__cta { flex-wrap: nowrap; gap: 9px; }
   .cscene__cta .btn { flex: 1; padding: 13px 10px; font-size: 14.5px; white-space: nowrap; }

@@ -25,7 +25,7 @@ export const SCENES: Scene[] = [
     product: 'CASPOL 140 2-К · клей',
     text: 'Двухкомпонентный полиуретановый клей для проклейки швов искусственного газона на соединительную ленту. Эластичный шов без усадки и деформации: зимой и летом не отклеится',
     img: '/img/p2-grass.webp', focus: 0.24,
-    facts: [['300–350 г', 'на погонный метр шва'], ['8 : 1', 'соотношение А : Б'], ['24 ч', 'до отверждения']],
+    facts: [['300–350 г', 'на погонный метр шва'], ['8 : 1', 'соотношение А:Б'], ['24 ч', 'до отверждения']],
   },
   {
     id: 'obj-3', num: 'ОБЪЕКТ 03', side: 'left', short: 'Рулонные покрытия',
@@ -52,9 +52,29 @@ const smooth = (e0: number, e1: number, x: number) => {
 }
 
 const N = SCENES.length
-const RUNWAY = 205 // vh на сцену (105 → 150 → 205: заказчик дважды просил спокойнее)
+/* Прокат на сцену. На десктопе заказчик дважды просил спокойнее (105 → 150 →
+   205), но на телефоне те же 205vh — это больше полутора экранов маха пальцем
+   на каждый объект, и секция растягивается почти на семь тысяч пикселей.
+   Поэтому в портрете прокат короче. */
+const RUNWAY = 205
+const RUNWAY_PORTRAIT = 175
+const isPortrait = () =>
+  window.innerWidth <= 760 || window.innerHeight > window.innerWidth
 
 export default function Cinema() {
+  const [portrait, setPortrait] = useState(() =>
+    typeof window === 'undefined' ? false : isPortrait())
+  useEffect(() => {
+    const on = () => setPortrait(isPortrait())
+    window.addEventListener('resize', on)
+    window.addEventListener('orientationchange', on)
+    return () => {
+      window.removeEventListener('resize', on)
+      window.removeEventListener('orientationchange', on)
+    }
+  }, [])
+  const runway = portrait ? RUNWAY_PORTRAIT : RUNWAY
+
   const wrapRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const scrimL = useRef<HTMLDivElement>(null)
@@ -142,7 +162,7 @@ export default function Cinema() {
       // 30% — столько остаётся над текстовым блоком (565px + отступ) на 844px.
       // При заливке в такую полосу кадр 16:9 показывает ~87% своей ширины
       // вместо 26% при полноэкранной обрезке.
-      const bandH = portrait ? H * 0.34 : H
+      const bandH = portrait ? H * 0.42 : H
       if (portrait) {
         ctx.fillStyle = '#070f16'
         ctx.fillRect(0, 0, W, H)
@@ -232,7 +252,7 @@ export default function Cinema() {
   }
 
   return (
-    <div className="cinema" ref={wrapRef} style={{ height: `${N * RUNWAY}vh` }} id="objects">
+    <div className="cinema" ref={wrapRef} style={{ height: `${N * runway}vh` }} id="objects">
       <div className="cinema__stage">
         <canvas className="cinema__canvas" ref={canvasRef} />
         <div className="cscene__scrim cscene__scrim--left" ref={scrimL} />
