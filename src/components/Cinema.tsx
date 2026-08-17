@@ -102,7 +102,15 @@ export default function Cinema() {
     const wrap = wrapRef.current!
     const canvas = canvasRef.current!
     const ctx = canvas.getContext('2d')!
-    const dpr = Math.min(1.25, window.devicePixelRatio || 1)
+    /* Разрешение холста считаем от того, что может дать ИСХОДНИК, а не по
+       привычке от 1.25. В портрете фотополоса физически занимает 1170×1063 px
+       экрана телефона, а при dpr 1.25 холст рисовал её в 488×444 — растяжение
+       в 2.4 раза, отсюда «мыло». Кадры сцен 1366×769, при dpr 2 они всё ещё
+       идут на уменьшение. На десктопе поднимать бессмысленно: там кадр и так
+       растянут на всю ширину, лишние пиксели холста детали не добавят. */
+    const dpr = isPortrait()
+      ? Math.min(2, window.devicePixelRatio || 1)
+      : Math.min(1.25, window.devicePixelRatio || 1)
     let W = 0, H = 0
 
     const resize = () => {
@@ -242,7 +250,8 @@ export default function Cinema() {
       window.removeEventListener('scroll', onScroll)
       window.removeEventListener('resize', onScroll)
     }
-  }, [])
+    // портрет влияет на разрешение холста — при повороте пересобираем сцену
+  }, [portrait])
 
   const goTo = (i: number) => {
     const wrap = wrapRef.current
