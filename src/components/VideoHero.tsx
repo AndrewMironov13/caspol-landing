@@ -111,22 +111,42 @@ export default function VideoHero() {
       const dir = avif ? set.avif : set.dir
       const ext = avif ? '.avif' : '.webp'
 
+      const url = (i: number) => `${BASE}${dir}${String(i).padStart(3, '0')}${ext}`
+
       const load = (i: number) => new Promise<void>((res) => {
         const img = imgs.current[i]
         if (!img) return res()
         const fin = () => { bump(); res() }
+        let retried = false
         img.onload = fin
-        img.onerror = fin
-        img.src = `${BASE}${dir}${String(i).padStart(3, '0')}${ext}`
+        img.onerror = () => {
+          // один повтор: GitHub Pages под залпом запросов отвечает 503,
+          // и без повтора кадр терялся навсегда — скраб прыгал через него
+          if (retried) return fin()
+          retried = true
+          setTimeout(() => { img.src = url(i) + '?r=1' }, 500)
+        }
+        img.src = url(i)
       })
+
+      /* Очередь с ограничением. Раньше остальные 125 кадров уходили одним
+         Promise.all — по HTTP/2 это 125 параллельных запросов: сервер режет
+         их в 503, а на мобильной сети они душат канал и первые кадры доходят
+         позже. Восемь потоков насыщают соединение и держат порядок. */
+      const pool = async (list: number[], limit: number) => {
+        let k = 0
+        await Promise.all(Array.from({ length: Math.min(limit, list.length) }, async () => {
+          while (k < list.length && !stop) await load(list[k++])
+        }))
+      }
 
       const coarse: number[] = [], rest: number[] = []
       for (let i = 0; i < set.n; i++) (i % STRIDE === 0 ? coarse : rest).push(i)
 
       // грубый проход целиком, и только потом всё остальное
-      await Promise.all(coarse.map(load))
+      await pool(coarse, 8)
       if (stop) return
-      await Promise.all(rest.map(load))
+      await pool(rest, 8)
       if (stop) return
 
       /* Распаковываем заранее, иначе первый проход упирается в декодирование.
