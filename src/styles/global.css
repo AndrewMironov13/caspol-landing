@@ -371,6 +371,12 @@ h1, h2, h3, h4 { font-family: var(--f-display); font-weight: 800; line-height: 1
 }
 .pstrip:first-child { margin-top: 0; }
 .pstrip img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+/* Белая линия по диагонали. Подложка полосы белая, а кадр и скрим клипаются
+   на 2px ниже — по верхнему краю остаётся ровно эта подложка. Без линии стык
+   двух тёмных кадров пропадал: диагональ читалась только по разнице яркости,
+   и на переходе «площадка → стадион» её просто не было. */
+.pstrip { background: #fff; }
+.pstrip img, .pstrip::after { clip-path: polygon(0 14px, 100% 2px, 100% 100%, 0 100%); }
 /* Затемнение только под подписью и только с её стороны — кадр остаётся
    открытым там, где стоит продукт. */
 .pstrip::after {
@@ -388,7 +394,7 @@ h1, h2, h3, h4 { font-family: var(--f-display); font-weight: 800; line-height: 1
 .pstrip--r .pstrip__no { left: auto; right: var(--gutter); }
 .pstrip__no, .pstrip__tx { position: relative; z-index: 2; }
 .pstrip__no {
-  position: absolute; top: 15px; left: var(--gutter); z-index: 2;
+  position: absolute; top: 21px; left: var(--gutter); z-index: 2;
   font-family: var(--f-mono); font-size: 11.5px; letter-spacing: .14em; color: rgba(255,255,255,.62);
 }
 .pstrip__tx b {
