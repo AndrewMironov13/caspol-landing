@@ -1,7 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 
 const BASE = import.meta.env.BASE_URL
-const RUNWAY = 620 // vh: 420 прокат + 200 удержание (было 460 — заказчик просил спокойнее)
+/* Прокат ролика. На десктопе колесо мыши крутится сколько угодно, и длинный
+   прокат читается как «спокойно». На телефоне свайп — фиксированный ход, и те
+   же 620vh означают почти вдвое больше махов на тот же ролик: это ощущается
+   как заторможенность, а не как спокойствие. Поэтому в портрете короче. */
+const RUNWAY = 620
+const RUNWAY_PORTRAIT = 460 // ровно то, что было до просьбы «помедленнее»
 const MOBILE_MAX = 760
 
 type Cap = { a: number; b: number; t: string; s: string }
@@ -177,11 +182,16 @@ export default function VideoHero() {
     const wrap = wrapRef.current!
     const canvas = canvasRef.current!
     const ctx = canvas.getContext('2d', { alpha: false })!
-    /* 1.25, а не 1.5: кадры ролика всего 1280×720 и на полный экран уже
-       растянуты — холст крупнее источника не добавляет ни пикселя детали,
-       зато растеризация дорожает пропорционально площади. Сравнение снимков
-       на 1440×900@2x: PSNR 57.5 дБ, резкость один в один. */
-    const dpr = Math.min(1.25, window.devicePixelRatio || 1)
+    /* Разрешение холста — от того, что может дать исходник.
+       Десктоп: кадры 1280×720 на полный экран уже растянуты, холст крупнее
+       источника не добавит ни пикселя (сравнение снимков на 1440×900@2x:
+       PSNR 57.5 дБ, резкость один в один) — оставляем 1.25.
+       Телефон: кадры вертикальные, 720×1280, и при dpr 2 холст 780px рисует
+       их практически один в один. При 1.25 холст был 487px и растягивался
+       на экране втрое — отсюда мыло. */
+    const dpr = mode === 'mobile'
+      ? Math.min(2, window.devicePixelRatio || 1)
+      : Math.min(1.25, window.devicePixelRatio || 1)
     let W = 0, H = 0
     let lastFrame = ''
     let lastF = -99
@@ -322,7 +332,7 @@ export default function VideoHero() {
   const pct = Math.round((ready / set.n) * 100)
 
   return (
-    <div className="vhero" ref={wrapRef} style={{ height: `${RUNWAY}vh` }} id="top">
+    <div className="vhero" ref={wrapRef} style={{ height: `${mode === 'mobile' ? RUNWAY_PORTRAIT : RUNWAY}vh` }} id="top">
       <div className="vhero__stage">
         <canvas className="vhero__canvas" ref={canvasRef} />
         <div className="vhero__scrim" />
