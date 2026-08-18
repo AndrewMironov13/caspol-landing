@@ -129,8 +129,22 @@ export default function VideoHero() {
       await Promise.all(rest.map(load))
       if (stop) return
 
-      // распаковываем заранее, иначе первый проход упрётся в декодирование
+      /* Распаковываем заранее, иначе первый проход упирается в декодирование.
+         Но делать это подряд нельзя: пачка из 150 decode() встаёт в ту же
+         очередь, что и отрисовка, и первый проход по герою получает просадки
+         (замер с процессором в 4 раза медленнее: 43 кадра тяжелее 20 мс).
+         Поэтому ждём простоя между кадрами — работа уходит в паузы между
+         кадрами прокрутки. */
+      const idle = () => new Promise<void>((res) => {
+        const ric = (window as unknown as {
+          requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => void
+        }).requestIdleCallback
+        if (ric) ric(() => res(), { timeout: 300 })
+        else setTimeout(res, 16)
+      })
       for (const img of imgs.current) {
+        if (stop) return
+        await idle()
         if (stop) return
         try { await img.decode() } catch { /* кадр не доехал */ }
       }
