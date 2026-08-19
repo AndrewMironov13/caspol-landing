@@ -44,11 +44,7 @@ function PanelStrips() {
           и переход по «Линейке» из меню приводил бы на экран раньше */}
       <div className="pstrips__head" id="line">
         <span className="eyebrow">Линейка CASPOL</span>
-        <h2>Разные задачи — <span className="accent">одна линейка</span></h2>
-        <p>
-          Площадка, поле, зал и уличные зоны — материалами одного производителя.
-          Один поставщик: меньше согласований и быстрее результат на объекте
-        </p>
+        <h2>Для каждого покрытия — <span className="accent">своё решение</span></h2>
       </div>
       <div className="pstrips__list">
         {PANELS.map((p, i) => (
@@ -235,11 +231,7 @@ function PanelCanvas() {
         <div className="hero__content" ref={contentRef}>
           <div className="hero__inner">
             <span className="eyebrow">Линейка CASPOL</span>
-            <h2>Разные задачи — <span className="accent">одна линейка</span></h2>
-            <p className="hero__sub">
-              Площадка, поле, зал и уличные зоны — материалами одного производителя.
-              Один поставщик: меньше согласований и быстрее результат на объекте
-            </p>
+            <h2>Для каждого покрытия — <span className="accent">своё решение</span></h2>
 
             <nav className="hero__legend" aria-label="Применение">
               {PANELS.map((p, i) => (

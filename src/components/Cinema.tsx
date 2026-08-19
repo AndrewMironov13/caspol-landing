@@ -23,15 +23,15 @@ export const SCENES: Scene[] = [
     id: 'obj-2', num: 'ОБЪЕКТ 02', side: 'right', short: 'Искусственный газон',
     title: 'Шов, который не разойдётся',
     product: 'CASPOL 140 2-К · клей',
-    text: 'Двухкомпонентный полиуретановый клей для проклейки швов искусственного газона на соединительную ленту. Эластичный шов без усадки и деформации: зимой и летом не отклеится',
+    text: 'Двухкомпонентный полиуретановый клей для проклейки швов искусственного газона на соединительную ленту. Эластичный шов без усадки и деформации',
     img: '/img/p2-grass.webp', focus: 0.24,
     facts: [['300–350 г', 'на погонный метр шва'], ['8 : 1', 'соотношение А:Б'], ['24 ч', 'до отверждения']],
   },
   {
     id: 'obj-3', num: 'ОБЪЕКТ 03', side: 'left', short: 'Рулонные покрытия',
-    title: 'Пол не «поедет» под игровой нагрузкой',
+    title: 'Прочная фиксация для спортивных покрытий',
     product: 'CASPOL 144 2-К · клей',
-    text: 'Двухкомпонентный клей для рулонных резиново-полиуретановых покрытий и матов. Без запаха и без усадки, не боится влаги, масел и растворителей. Сохраняет прочность при высоких нагрузках — там, где по полу играют и бегают каждый день',
+    text: 'Двухкомпонентный клей для рулонных резиново-полиуретановых покрытий и матов. Без запаха и без усадки, не боится влаги, масел и растворителей. Сохраняет прочность при высоких нагрузках',
     img: '/img/p3-rolled.webp', focus: 0.7,
     facts: [['800–1000 г/м²', 'расход'], ['≥ 2 Н/мм²', 'прочность на сдвиг'], ['24 ч', 'до отверждения']],
   },
@@ -122,7 +122,25 @@ export default function Cinema() {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
     }
     resize()
-    const ro = new ResizeObserver(() => { resize(); measure(); onScroll() })
+
+    /* Доля кадра под фото не фиксированная, а подогнанная под реальную высоту
+       текста. На айфоне 390×844 контент влезал при 42%, а на андроиде экран
+       уже и выше: описание переносится на 6–7 строк, подписи характеристик — на
+       две, и кнопки выдавливало за край. Теперь меряем самую высокую сцену и
+       отдаём фото ровно остаток. */
+    const bandFrac = { v: 0.42 }
+    const fitBand = () => {
+      if (!H || !(W <= 760 || H > W)) return
+      let maxH = 0
+      for (const el of contentRefs.current) if (el) maxH = Math.max(maxH, el.offsetHeight)
+      if (!maxH) return
+      const frac = clamp((H - maxH - 34) / H, 0.2, 0.44)
+      if (Math.abs(frac - bandFrac.v) < 0.005) return
+      bandFrac.v = frac
+      wrap.style.setProperty('--band', `${Math.round(frac * H)}px`)
+    }
+
+    const ro = new ResizeObserver(() => { resize(); measure(); fitBand(); onScroll() })
     ro.observe(canvas)
 
     /* Без пружины: позиция сцены — чистая функция от скролла.
@@ -143,7 +161,11 @@ export default function Cinema() {
 
     // геометрия может сдвинуться, когда догрузятся шрифты и картинки
     window.addEventListener('load', measure)
-    const remeasure = [setTimeout(measure, 400), setTimeout(measure, 1500)]
+    const remeasure = [
+      setTimeout(() => { measure(); fitBand(); onScroll() }, 400),
+      setTimeout(() => { measure(); fitBand(); onScroll() }, 1500),
+    ]
+    fitBand()
 
 
     const render = () => {
@@ -170,7 +192,7 @@ export default function Cinema() {
       // 30% — столько остаётся над текстовым блоком (565px + отступ) на 844px.
       // При заливке в такую полосу кадр 16:9 показывает ~87% своей ширины
       // вместо 26% при полноэкранной обрезке.
-      const bandH = portrait ? H * 0.42 : H
+      const bandH = portrait ? H * bandFrac.v : H
       if (portrait) {
         ctx.fillStyle = '#070f16'
         ctx.fillRect(0, 0, W, H)

@@ -494,7 +494,8 @@ h1, h2, h3, h4 { font-family: var(--f-display); font-weight: 800; line-height: 1
   .cscene__scrim, .cscene__scrim--right {
     background: linear-gradient(0deg,
       rgba(7,15,22,1) 0%, rgba(7,15,22,1) 64%, rgba(7,15,22,.5) 68%, rgba(7,15,22,0) 72%); }
-  .cscene__wrap { align-items: flex-start; padding-top: calc(42svh + 16px); padding-bottom: 2vh; }
+    /* --band выставляет Cinema по реальной высоте самой длинной сцены */
+  .cscene__wrap { align-items: flex-start; padding-top: calc(var(--band, 42svh) + 16px); padding-bottom: 2vh; }
   /* кнопки в одну строку — иначе контент не помещается под фото */
   .cscene__cta { flex-wrap: nowrap; gap: 9px; }
   .cscene__cta .btn { flex: 1; padding: 13px 10px; font-size: 14.5px; white-space: nowrap; }

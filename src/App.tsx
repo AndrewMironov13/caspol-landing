@@ -211,7 +211,7 @@ export default function App() {
         <div className="container">
           <div className="section-head reveal">
             <span className="eyebrow">Как нас найти</span>
-            <h2 className="h-sec">Производим и отгружаем сами</h2>
+            <h2 className="h-sec">С производства — прямо на ваш объект</h2>
           </div>
           <div className="mapgrid">
             <div className="contacts reveal">

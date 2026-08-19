@@ -339,8 +339,8 @@ export default function VideoHero() {
 
         <div className="vhero__title" ref={titleRef}>
           <span className="eyebrow">CASPOL · связующие и клеи</span>
-          <h1>То, на чём <span className="accent">держится покрытие</span></h1>
-          <p>Полиуретановые связующие и клеи CASPOL — для детских площадок, стадионов и залов. Собственное производство в Дзержинске, отгрузка со склада</p>
+          <h1>Материалы, на которых <span className="accent">держится результат</span></h1>
+          <p>Полиуретановые связующие и клеи для спортивных, детских и уличных покрытий</p>
           <div className="vhero__actions">
             <a href="#calc" className="btn btn--primary btn--lg">Рассчитать материал</a>
             <a href="#contacts" className="btn btn--glass btn--lg">Получить прайс</a>
