@@ -38,6 +38,21 @@ function boot() {
   })
 }
 
+/* Цели вешаются одним делегированным слушателем по атрибуту data-goal —
+   не трогая каждый компонент. Без номера счётчика слушатель просто молчит. */
+function watchGoals() {
+  document.addEventListener('click', (e) => {
+    const el = (e.target as HTMLElement | null)?.closest?.('[data-goal]')
+    const goal = el?.getAttribute('data-goal')
+    if (goal) reachGoal(goal)
+  }, { passive: true, capture: true })
+}
+
+export function reachGoal(goal: string) {
+  if (!ID || !window.ym) return
+  window.ym(Number(ID), 'reachGoal', goal)
+}
+
 export function initMetrika() {
   if (!ID) return
   const start = () => {
@@ -47,6 +62,7 @@ export function initMetrika() {
     if (ric) ric(boot, { timeout: 3000 })
     else setTimeout(boot, 1200)
   }
+  watchGoals()
   if (document.readyState === 'complete') start()
   else window.addEventListener('load', start, { once: true })
 }

@@ -162,7 +162,7 @@ export default function Calculator({ onRequest }: { onRequest?: (p: Prefill) => 
           </div>
           <div className="r"><span>Материал</span><b>{PRODUCTS.find((p) => p.key === prod)!.label}</b></div>
         </div>
-        <button type="button" className="btn btn--primary" onClick={request}>Получить расчёт стоимости</button>
+        <button type="button" data-goal="calc_request" className="btn btn--primary" onClick={request}>Получить расчёт стоимости</button>
         <p className="calc__note">
           {isBinder
             ? 'Технические нормы: базовый слой 14–18 %, лицевой 19–24 % от массы крошки. Крошку считаем при насыпной плотности ~500 кг/м³'

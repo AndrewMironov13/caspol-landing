@@ -304,8 +304,8 @@ export default function Cinema() {
                     ))}
                   </div>
                   <div className="cscene__cta">
-                    <a href="#contacts" className="btn btn--primary">Запросить цену</a>
-                    <a href="#calc" className="btn btn--glass">Рассчитать материал</a>
+                    <a href="#contacts" data-goal="price_scene" className="btn btn--primary">Запросить цену</a>
+                    <a href="#calc" data-goal="calc_scene" className="btn btn--glass">Рассчитать материал</a>
                   </div>
                 </div>
               </div>

@@ -46,10 +46,17 @@
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+/* overflow-x: clip на html, а НЕ hidden на body. hidden делает body
+   контейнером прокрутки, и тогда в части браузеров ломается position: sticky,
+   а window.scrollY перестаёт расти — липкие сцены замирают, хотя страница
+   визуально едет. clip просто отсекает вылезающее, не создавая контейнер.
+   scroll-behavior: smooth убран сознательно: страница высотой 14 500 px, и
+   переход по «Каталогу» из шапки анимировал прокрутку через семь тысяч
+   пикселей — это выглядело как зависание. Якоря теперь прыгают сразу. */
+html { -webkit-text-size-adjust: 100%; overflow-x: clip; }
 body {
   font-family: var(--f-body); color: var(--ink); background: var(--bg);
-  line-height: 1.55; -webkit-font-smoothing: antialiased; overflow-x: hidden;
+  line-height: 1.55; -webkit-font-smoothing: antialiased;
 }
 img { max-width: 100%; display: block; }
 a { color: inherit; text-decoration: none; }

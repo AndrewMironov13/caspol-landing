@@ -134,14 +134,45 @@ export default function VideoHero() {
         img.src = url(i)
       })
 
-      /* Очередь с ограничением. Раньше остальные 125 кадров уходили одним
-         Promise.all — по HTTP/2 это 125 параллельных запросов: сервер режет
-         их в 503, а на мобильной сети они душат канал и первые кадры доходят
-         позже. Восемь потоков насыщают соединение и держат порядок. */
-      const pool = async (list: number[], limit: number) => {
-        let k = 0
+      /* Очередь с ограничением и приоритетом по месту прокрутки.
+         Ограничение: раньше 125 кадров уходили одним Promise.all — по HTTP/2
+         это 125 параллельных запросов, сервер режет их в 503, а на мобильной
+         сети они душат канал. Восемь потоков насыщают соединение.
+         Приоритет: очередь по порядку грузила кадр 5, когда человек уже
+         долистал до сотого, — и он видел грубый проход там, где смотрит.
+         Теперь каждый поток берёт ближайший недостающий кадр к текущей
+         позиции, и картинка достраивается именно там, где на неё смотрят. */
+      const nearest = (pending: Set<number>) => {
+        if (!pending.size) return -1
+        const vh = window.innerHeight || 1
+        const w = wrapRef.current
+        const span = w ? w.offsetHeight - vh - vh : 1
+        const p = w ? clamp((window.scrollY - w.offsetTop) / (span || 1)) : 0
+        const cur = Math.round(p * (set.n - 1))
+        let best = -1, bd = Infinity
+        for (const i of pending) {
+          const d = Math.abs(i - cur)
+          if (d < bd) { bd = d; best = i }
+        }
+        pending.delete(best)
+        return best
+      }
+
+      const pool = async (list: number[], limit: number, byPosition = false) => {
+        if (!byPosition) {
+          let k = 0
+          await Promise.all(Array.from({ length: Math.min(limit, list.length) }, async () => {
+            while (k < list.length && !stop) await load(list[k++])
+          }))
+          return
+        }
+        const pending = new Set(list)
         await Promise.all(Array.from({ length: Math.min(limit, list.length) }, async () => {
-          while (k < list.length && !stop) await load(list[k++])
+          while (!stop) {
+            const i = nearest(pending)
+            if (i < 0) break
+            await load(i)
+          }
         }))
       }
 
@@ -151,7 +182,7 @@ export default function VideoHero() {
       // грубый проход целиком, и только потом всё остальное
       await pool(coarse, 8)
       if (stop) return
-      await pool(rest, 8)
+      await pool(rest, 8, true)
       if (stop) return
 
       /* Распаковываем заранее, иначе первый проход упирается в декодирование.
@@ -342,8 +373,8 @@ export default function VideoHero() {
           <h1>Материалы, на которых <span className="accent">держится результат</span></h1>
           <p>Полиуретановые связующие и клеи для спортивных, детских и уличных покрытий</p>
           <div className="vhero__actions">
-            <a href="#calc" className="btn btn--primary btn--lg">Рассчитать материал</a>
-            <a href="#contacts" className="btn btn--glass btn--lg">Получить прайс</a>
+            <a href="#calc" className="btn btn--primary btn--lg" data-goal="calc_hero">Рассчитать материал</a>
+            <a href="#contacts" className="btn btn--glass btn--lg" data-goal="price_hero">Получить прайс</a>
           </div>
         </div>
 

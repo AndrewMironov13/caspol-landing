@@ -37,7 +37,7 @@ const Messengers = ({ className = '' }: { className?: string }) =>
     <span className={`msgs ${className}`}>
       {MESSENGERS.map((m) => (
         <a
-          key={m.id} href={m.url} className={`msg msg--${m.id}`}
+          key={m.id} href={m.url} data-goal={`msg_${m.id}`} className={`msg msg--${m.id}`}
           target="_blank" rel="noopener noreferrer"
           aria-label={m.label} title={m.label}
         >{MSG_ICON[m.id]}</a>
@@ -115,11 +115,11 @@ function Header() {
           {/* звонок — второе действие рядом с формой: подрядчику часто быстрее
               спросить голосом, чем заполнять поля */}
           <a
-            className="header__tel"
+            className="header__tel" data-goal="call_header"
             href={`tel:${PHONE_1.replace(/[^\d+]/g, '')}`}
             aria-label={`Позвонить ${PHONE_1}`}
           >{I.phone}<span>{PHONE_1}</span></a>
-          <a href="#contacts" className="btn btn--primary header__cta" onClick={() => setOpen(false)}>
+          <a href="#contacts" data-goal="price_header" className="btn btn--primary header__cta" onClick={() => setOpen(false)}>
             <span className="full">Получить прайс</span><span className="short">Прайс</span>
           </a>
           <button
@@ -136,9 +136,9 @@ function Header() {
           {NAV.map(([href, label]) => (
             <a key={href} href={href} onClick={() => setOpen(false)}>{label}</a>
           ))}
-          <a className="mmenu__phone" href={`tel:${PHONE_1.replace(/[^\d+]/g, '')}`}>{PHONE_1}</a>
+          <a className="mmenu__phone" data-goal="call_menu" href={`tel:${PHONE_1.replace(/[^\d+]/g, '')}`}>{PHONE_1}</a>
           <Messengers className="msgs--menu" />
-          <a href="#contacts" className="btn btn--primary btn--wide btn--lg" onClick={() => setOpen(false)}>
+          <a href="#contacts" data-goal="price_menu" className="btn btn--primary btn--wide btn--lg" onClick={() => setOpen(false)}>
             Получить прайс
           </a>
         </nav>

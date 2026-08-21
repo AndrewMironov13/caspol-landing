@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { reachGoal } from '../lib/metrika'
 
 export type Prefill = { object?: string; area?: string; note?: string }
 
@@ -58,7 +59,7 @@ export default function LeadForm({ prefill }: { prefill?: Prefill }) {
         }),
       })
       if (!res.ok) throw new Error(String(res.status))
-      setState('ok')
+      setState('ok'); reachGoal('form_submit')
     } catch {
       setState('error')
     }
