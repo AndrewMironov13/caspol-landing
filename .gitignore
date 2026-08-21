@@ -4,3 +4,5 @@ _unused
 concept
 .DS_Store
 *.local
+backup-*
+*.env

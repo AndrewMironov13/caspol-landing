@@ -49,7 +49,7 @@ function PanelStrips() {
       <div className="pstrips__list">
         {PANELS.map((p, i) => (
           <a className={`pstrip pstrip--${p.side}`} href={p.href} key={p.id}>
-            <img src={import.meta.env.BASE_URL + p.shot} alt="" loading="lazy" decoding="async"
+            <img src={import.meta.env.BASE_URL + p.shot} alt={`${p.title} — ${p.note}`} loading="lazy" decoding="async"
                  style={{ objectPosition: p.pos }} />
             <span className="pstrip__no">{String(i + 1).padStart(2, '0')}</span>
             <span className="pstrip__tx">

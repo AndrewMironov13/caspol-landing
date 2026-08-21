@@ -3,26 +3,94 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CASPOL — связующие и клеи для спортивных и детских покрытий</title>
-    <meta name="description" content="Линейка CASPOL: связующее CASPUR 4000 для резиновой крошки, клей CASPOL 140 для искусственной травы, клей CASPOL 144 для рулонных покрытий. Производство в России, Дзержинск." />
+    <!-- Заголовок собран под коммерческие запросы: главный — «связующее для
+         резиновой крошки», дальше клеи. Длина 59 символов, в сниппет Яндекса
+         влезает целиком и не обрезается многоточием. -->
+    <title>Связующее для резиновой крошки и клеи для покрытий — CASPOL</title>
+    <meta name="description" content="Производим полиуретановое связующее CASPUR 4000 для резиновой крошки и клеи CASPOL 140 и 144 для искусственного газона и рулонных покрытий. Завод в Дзержинске, отгрузка со склада, расчёт материала под объект." />
+    <meta name="keywords" content="связующее для резиновой крошки, полиуретановое связующее, купить связующее для крошки, клей для искусственного газона, клей для искусственной травы, клей для рулонных покрытий, клей для резиновой плитки, CASPUR 4000, CASPOL 140 2-К, CASPOL 144 2-К, покрытие для детских площадок, резиновая плитка, производство Дзержинск" />
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
     <meta name="theme-color" content="#0492c4" />
-    <link rel="canonical" href="https://caspol.ru/" />
+    <link rel="canonical" href="%VITE_SITE_URL%/" />
 
     <!-- превью при отправке ссылки в мессенджеры и соцсети -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="CASPOL" />
     <meta property="og:locale" content="ru_RU" />
-    <meta property="og:url" content="https://caspol.ru/" />
-    <meta property="og:title" content="То, на чём держится покрытие — связующие и клеи CASPOL" />
-    <meta property="og:description" content="Связующее CASPUR 4000 для резиновой крошки и клеи CASPOL 140 и 144 — для детских площадок, стадионов и залов. Собственное производство в Дзержинске, отгрузка со склада." />
-    <meta property="og:image" content="https://caspol.ru/og.jpg" />
+    <meta property="og:url" content="%VITE_SITE_URL%/" />
+    <meta property="og:title" content="Материалы, на которых держится результат — CASPOL" />
+    <meta property="og:description" content="Полиуретановые связующие и клеи для спортивных, детских и уличных покрытий. Собственное производство в Дзержинске, отгрузка со склада." />
+    <meta property="og:image" content="%VITE_SITE_URL%/og.jpg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="То, на чём держится покрытие — связующие и клеи CASPOL" />
+    <meta name="twitter:title" content="Материалы, на которых держится результат — CASPOL" />
     <meta name="twitter:description" content="Связующее для резиновой крошки и клеи для искусственной травы и рулонных покрытий. Производство в Дзержинске." />
-    <meta name="twitter:image" content="https://caspol.ru/og.jpg" />
+    <meta name="twitter:image" content="%VITE_SITE_URL%/og.jpg" />
+
+    <!-- Микроразметка для Яндекса: организация с адресом, телефонами и часами
+         работы плюс каталог из трёх продуктов. Контакты продублированы из
+         src/App.tsx — при правке менять в обоих местах. -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "%VITE_SITE_URL%/#org",
+          "name": "CASPOL",
+          "legalName": "ООО «Каспол»",
+          "url": "%VITE_SITE_URL%/",
+          "logo": "%VITE_SITE_URL%/og.jpg",
+          "description": "Производство полиуретановых связующих и клеёв для спортивных, детских и уличных покрытий",
+          "address": {
+            "@type": "PostalAddress",
+            "postalCode": "606002",
+            "addressCountry": "RU",
+            "addressRegion": "Нижегородская область",
+            "addressLocality": "Дзержинск",
+            "streetAddress": "ул. Красноармейская, д. 15, корп. А"
+          },
+          "telephone": ["+7 950 347-01-96", "+7 904 786-94-30"],
+          "email": "info@caspol.ru",
+          "openingHours": ["Mo-Th 08:00-17:00", "Fr 08:00-16:00"],
+          "sameAs": ["https://caspol.ru/"]
+        },
+        {
+          "@type": "WebSite",
+          "@id": "%VITE_SITE_URL%/#site",
+          "url": "%VITE_SITE_URL%/",
+          "name": "CASPOL — связующие и клеи для покрытий",
+          "inLanguage": "ru-RU",
+          "publisher": { "@id": "%VITE_SITE_URL%/#org" }
+        },
+        {
+          "@type": "Product",
+          "name": "CASPUR 4000",
+          "category": "Связующее для резиновой крошки",
+          "description": "Однокомпонентное полиуретановое связующее для резиновой крошки: бесшовные покрытия детских и спортивных площадок, прессовка резиновой плитки. Нелетучих веществ не менее 99 %, расход 14–24 % от массы крошки.",
+          "brand": { "@id": "%VITE_SITE_URL%/#org" },
+          "manufacturer": { "@id": "%VITE_SITE_URL%/#org" }
+        },
+        {
+          "@type": "Product",
+          "name": "CASPOL 140 2-К",
+          "category": "Клей для искусственного газона",
+          "description": "Двухкомпонентный полиуретановый клей для проклейки швов искусственного газона на соединительную ленту. Расход 300–350 г на погонный метр шва, соотношение А:Б = 8:1.",
+          "brand": { "@id": "%VITE_SITE_URL%/#org" },
+          "manufacturer": { "@id": "%VITE_SITE_URL%/#org" }
+        },
+        {
+          "@type": "Product",
+          "name": "CASPOL 144 2-К",
+          "category": "Клей для рулонных покрытий",
+          "description": "Двухкомпонентный полиуретановый клей для рулонных резиново-полиуретановых покрытий и матов. Расход 800–1000 г/м², прочность на сдвиг не менее 2 Н/мм².",
+          "brand": { "@id": "%VITE_SITE_URL%/#org" },
+          "manufacturer": { "@id": "%VITE_SITE_URL%/#org" }
+        }
+      ]
+    }
+    </script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
